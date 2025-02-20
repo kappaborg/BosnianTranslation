@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+* {
+  @apply transition-colors duration-200;
+}
+
+body {
+  @apply antialiased;
+}
+
+/* Light theme (default) */
+:root {
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #1f2937;
+  --accent: #4f46e5;
+  --accent-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #1f2937;
+}
+
+/* Dark theme */
+.dark {
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #2d2d2d;
+  --secondary-foreground: #e5e7eb;
+  --accent: #6366f1;
+  --accent-foreground: #ffffff;
+  --background: #111827;
+  --foreground: #ffffff;
+}
+
+/* Soft theme */
+.soft {
+  --primary: #4263eb;
+  --primary-foreground: #ffffff;
+  --secondary: #d1d5db;
+  --secondary-foreground: #374151;
+  --accent: #4263eb;
+  --accent-foreground: #ffffff;
+  --background: #e5e7eb;
+  --foreground: #1f2937;
+}
+
+/* Theme transition */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Component-specific styles */
+.soft {
+  @apply bg-gray-200;
+}
+
+.soft .bg-white {
+  @apply bg-gray-200;
+}
+
+.soft [class*="border-gray-200"] {
+  border-color: #d1d5db;
+}
+
+.soft .text-gray-900 {
+  @apply text-gray-800;
+}
+
+.soft .shadow-sm {
+  @apply shadow-gray-300;
+}
+
+.light-theme {
+  color-scheme: light;
+}
+
+.dark-theme {
+  color-scheme: dark;
+}
+
+.soft-theme {
+  color-scheme: light;
+} 
