@@ -2,10 +2,10 @@
 
 import { DialogueScenario as DialogueScenarioType } from '@/types';
 import {
-    InformationCircleIcon,
-    PlayIcon,
-    SpeakerWaveIcon,
-    TranslateIcon,
+  InformationCircleIcon,
+  LanguageIcon,
+  PlayIcon,
+  SpeakerWaveIcon,
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
@@ -67,7 +67,7 @@ export default function DialogueScenario({ scenario }: Props) {
             dark:bg-indigo-900/20 dark:text-indigo-400
             soft:bg-indigo-50 soft:text-indigo-600"
         >
-          <TranslateIcon className="w-5 h-5" />
+          <LanguageIcon className="w-5 h-5" />
           <span>{showTranslations ? 'Hide' : 'Show'} Translations</span>
         </motion.button>
 
