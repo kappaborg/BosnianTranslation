@@ -7,6 +7,8 @@ interface Props {
   onClose: () => void;
 }
 
+const ADMIN_EMAIL = 'ozansmet@gmail.com';
+
 export default function BugReport({ isOpen, onClose }: Props) {
   const [description, setDescription] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
@@ -19,27 +21,31 @@ export default function BugReport({ isOpen, onClose }: Props) {
     setStatus('idle');
 
     try {
-      // Create form data
-      const formData = new FormData();
-      formData.append('description', description);
-      formData.append('email', 'ozansmet@gmail.com'); // Admin email
-      if (screenshot) {
-        formData.append('screenshot', screenshot);
-      }
+      // Format the bug report email content
+      const emailSubject = encodeURIComponent('BosniaTrans Bug Report');
+      const emailBody = encodeURIComponent(
+        `Bug Report Details:\n\n` +
+        `Description:\n${description}\n\n` +
+        `Browser: ${navigator.userAgent}\n` +
+        `Date: ${new Date().toLocaleString()}\n` +
+        `URL: ${window.location.href}\n`
+      );
 
-      // Send email using a service like EmailJS or your backend API
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Open default email client with pre-filled content
+      window.location.href = `mailto:${ADMIN_EMAIL}?subject=${emailSubject}&body=${emailBody}`;
       
       setStatus('success');
       setDescription('');
       setScreenshot(null);
+      
+      // Close the modal after a short delay
       setTimeout(() => {
         onClose();
         setStatus('idle');
       }, 2000);
     } catch (error) {
       setStatus('error');
+      console.error('Error sending bug report:', error);
     } finally {
       setIsSending(false);
     }
@@ -71,6 +77,10 @@ export default function BugReport({ isOpen, onClose }: Props) {
               Report a Bug
             </h2>
 
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Your bug report will be sent to {ADMIN_EMAIL}
+            </p>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label
@@ -85,7 +95,7 @@ export default function BugReport({ isOpen, onClose }: Props) {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Please describe the bug in detail..."
+                  placeholder="Please describe what happened, what you expected to happen, and any steps to reproduce the issue..."
                   required
                 />
               </div>
@@ -104,6 +114,9 @@ export default function BugReport({ isOpen, onClose }: Props) {
                   onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  You can also attach screenshots directly in your email client after submission.
+                </p>
               </div>
 
               <button
@@ -116,18 +129,18 @@ export default function BugReport({ isOpen, onClose }: Props) {
                       : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600'
                   }`}
               >
-                {isSending ? 'Sending...' : 'Submit Report'}
+                {isSending ? 'Opening Email Client...' : 'Submit Report'}
               </button>
 
               {status === 'success' && (
                 <p className="text-green-600 dark:text-green-400 text-center">
-                  Bug report submitted successfully!
+                  Email client opened with bug report!
                 </p>
               )}
 
               {status === 'error' && (
                 <p className="text-red-600 dark:text-red-400 text-center">
-                  Failed to submit bug report. Please try again.
+                  Failed to open email client. Please try again or email us directly at {ADMIN_EMAIL}
                 </p>
               )}
             </form>

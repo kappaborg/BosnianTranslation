@@ -1,15 +1,30 @@
 'use client';
 
 import { translateText } from '@/utils/translation';
-import { ArrowsRightLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowsRightLeftIcon, LanguageIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import AudioPronunciation from './AudioPronunciation';
 
+type LanguageCode = 'en' | 'bs' | 'zh';
+
+interface Language {
+  code: LanguageCode;
+  name: string;
+  nativeName: string;
+}
+
+const languages: Language[] = [
+  { code: 'en', name: 'English', nativeName: 'English' },
+  { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski' },
+  { code: 'zh', name: 'Chinese', nativeName: '中文' },
+];
+
 export default function TranslationBox() {
   const [sourceText, setSourceText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
-  const [sourceLang, setSourceLang] = useState<'en' | 'bs'>('en');
+  const [sourceLang, setSourceLang] = useState<LanguageCode>('en');
+  const [targetLang, setTargetLang] = useState<LanguageCode>('bs');
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +35,6 @@ export default function TranslationBox() {
     setError(null);
     
     try {
-      const targetLang = sourceLang === 'en' ? 'bs' : 'en';
       const result = await translateText(sourceText, sourceLang, targetLang);
       setTranslatedText(result);
     } catch (err) {
@@ -32,39 +46,60 @@ export default function TranslationBox() {
   };
 
   const switchLanguages = () => {
-    setSourceLang(sourceLang === 'en' ? 'bs' : 'en');
+    setSourceLang(targetLang);
+    setTargetLang(sourceLang);
     setSourceText(translatedText);
     setTranslatedText(sourceText);
     setError(null);
   };
 
+  const getLanguageSelectStyles = (isSource: boolean) => `
+    w-full p-2 rounded-lg bg-white dark:bg-gray-800 border-2 
+    ${isSource ? 'border-indigo-500' : 'border-purple-500'} 
+    text-gray-900 dark:text-white focus:ring-2 
+    ${isSource ? 'focus:ring-indigo-500' : 'focus:ring-purple-500'}
+    focus:border-transparent
+  `;
+
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-            {sourceLang === 'en' ? 'English' : 'Bosnian'}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Source Language
-          </span>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+        <div className="w-full md:w-2/5">
+          <select
+            value={sourceLang}
+            onChange={(e) => setSourceLang(e.target.value as LanguageCode)}
+            className={getLanguageSelectStyles(true)}
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name} ({lang.nativeName})
+              </option>
+            ))}
+          </select>
         </div>
+
         <motion.button
           whileHover={{ scale: 1.1, rotate: 180 }}
           whileTap={{ scale: 0.9 }}
           transition={{ duration: 0.3 }}
           onClick={switchLanguages}
-          className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+          className="p-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
         >
-          <ArrowsRightLeftIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          <ArrowsRightLeftIcon className="w-6 h-6" />
         </motion.button>
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-            {sourceLang === 'en' ? 'Bosnian' : 'English'}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Target Language
-          </span>
+
+        <div className="w-full md:w-2/5">
+          <select
+            value={targetLang}
+            onChange={(e) => setTargetLang(e.target.value as LanguageCode)}
+            className={getLanguageSelectStyles(false)}
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name} ({lang.nativeName})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -78,7 +113,8 @@ export default function TranslationBox() {
                 dark:bg-gray-800 dark:text-white dark:border-gray-600
                 placeholder-gray-400 dark:placeholder-gray-500
                 shadow-sm"
-              placeholder={`Enter ${sourceLang === 'en' ? 'English' : 'Bosnian'} text...`}
+              placeholder={`Enter text in ${languages.find(l => l.code === sourceLang)?.name}...`}
+              dir={sourceLang === 'zh' ? 'ltr' : 'auto'}
             />
             {sourceText && (
               <div className="absolute bottom-4 right-4">
@@ -87,6 +123,7 @@ export default function TranslationBox() {
             )}
           </div>
         </div>
+
         <div className="flex flex-col">
           <div className="relative">
             <textarea
@@ -97,10 +134,11 @@ export default function TranslationBox() {
                 font-medium text-indigo-700 dark:text-indigo-300
                 shadow-sm"
               placeholder="Translation will appear here..."
+              dir={targetLang === 'zh' ? 'ltr' : 'auto'}
             />
             {translatedText && (
               <div className="absolute bottom-4 right-4">
-                <AudioPronunciation text={translatedText} lang={sourceLang === 'en' ? 'bs' : 'en'} />
+                <AudioPronunciation text={translatedText} lang={targetLang} />
               </div>
             )}
           </div>
@@ -120,19 +158,27 @@ export default function TranslationBox() {
         disabled={isTranslating || !sourceText.trim()}
         className={`mt-6 w-full py-4 px-6 rounded-lg text-white font-medium text-lg shadow-md
           ${isTranslating || !sourceText.trim()
-            ? 'bg-indigo-400 dark:bg-indigo-500/50 cursor-not-allowed'
-            : 'bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600'
+            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
           }`}
       >
-        {isTranslating ? 'Translating...' : 'Translate'}
+        {isTranslating ? (
+          <div className="flex items-center justify-center">
+            <LanguageIcon className="w-6 h-6 animate-spin mr-2" />
+            <span>Translating...</span>
+          </div>
+        ) : (
+          'Translate'
+        )}
       </motion.button>
 
       <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         <p className="font-medium text-gray-700 dark:text-gray-300 mb-3">Tips:</p>
         <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-400">
           <li>For better results, write complete sentences</li>
+          <li>Chinese translations work best with simplified Chinese characters</li>
           <li>Check the translation accuracy before using it in important communications</li>
-          <li>The translation service is powered by MyMemory Translation API</li>
+          <li>The translation service supports English ↔ Bosnian ↔ Chinese translations</li>
         </ul>
       </div>
     </div>

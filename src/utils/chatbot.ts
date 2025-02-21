@@ -1,3 +1,4 @@
+import { culturalContent, grammarLessons, practiceDialogues, quizQuestions, vocabularyCategories } from '@/data/learningContent';
 import { ChatMessage } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -5,9 +6,10 @@ interface ChatResponse {
   message: string;
   suggestions?: string[];
   audioUrl?: string;
-  type?: 'translation' | 'grammar' | 'vocabulary' | 'general' | 'culture' | 'practice';
+  type?: 'translation' | 'grammar' | 'vocabulary' | 'general' | 'culture' | 'practice' | 'quiz';
   bosnianText?: string;
   englishText?: string;
+  learningContent?: any;
 }
 
 const grammarPatterns = [
@@ -84,95 +86,153 @@ const commonResponses: Record<string, ChatResponse> = {
   },
 };
 
-const generatePracticeExercise = (): ChatResponse => {
-  const phrases = Object.entries(commonPhrases);
-  const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-  
-  return {
-    message: `Let's practice! Try to translate this phrase:\n\nEnglish: "${randomPhrase[1].en}"\n\nType your answer in Bosnian, and I'll check if it's correct!`,
-    type: 'practice',
-  };
+const getRandomQuestion = (category: string, difficulty: string = 'beginner'): any => {
+  const categoryQuestions = quizQuestions.find(q => q.category.toLowerCase() === category.toLowerCase());
+  if (!categoryQuestions) return null;
+
+  const filteredQuestions = categoryQuestions.questions.filter(q => q.difficulty === difficulty);
+  if (filteredQuestions.length === 0) return null;
+
+  return filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
 };
 
-const checkTranslation = (userInput: string, targetPhrase: string): boolean => {
-  return userInput.toLowerCase().trim() === targetPhrase.toLowerCase().trim();
+const getRandomVocabulary = (category: keyof typeof vocabularyCategories): any => {
+  const words = vocabularyCategories[category];
+  return words[Math.floor(Math.random() * words.length)];
 };
 
-const generateResponse = async (message: string, context?: { difficulty?: string }): Promise<ChatResponse> => {
+const getRandomDialogue = (): any => {
+  return practiceDialogues[Math.floor(Math.random() * practiceDialogues.length)];
+};
+
+const getGrammarLesson = (topic: string): any => {
+  return grammarLessons.find(lesson => 
+    lesson.title.toLowerCase().includes(topic.toLowerCase())
+  );
+};
+
+const generateResponse = async (message: string, context?: { difficulty?: string; focusArea?: string }): Promise<ChatResponse> => {
   const lowerMessage = message.toLowerCase();
+  const userLevel = context?.difficulty || 'beginner';
+  const focusArea = context?.focusArea;
 
-  // Check for greetings
-  if (lowerMessage.match(/^(hi|hello|hey|zdravo)/i)) {
-    return commonResponses.greeting;
-  }
-
-  // Check for goodbyes
-  if (lowerMessage.match(/^(bye|goodbye|doviđenja)/i)) {
-    return commonResponses.goodbye;
-  }
-
-  // Check for thanks
-  if (lowerMessage.match(/^(thanks|thank you|hvala)/i)) {
-    return commonResponses.thanks;
-  }
-
-  // Check for practice request
+  // Check for quiz/practice requests
   if (practicePatterns.some(pattern => lowerMessage.includes(pattern))) {
-    return generatePracticeExercise();
+    if (lowerMessage.includes('vocabulary')) {
+      const question = getRandomQuestion('vocabulary', userLevel);
+      return {
+        message: `Let's practice vocabulary!\n\n${question.question}`,
+        suggestions: question.options,
+        type: 'quiz',
+        learningContent: question,
+      };
+    }
+
+    if (lowerMessage.includes('grammar')) {
+      const question = getRandomQuestion('grammar', userLevel);
+      return {
+        message: `Let's practice grammar!\n\n${question.question}`,
+        suggestions: question.options,
+        type: 'quiz',
+        learningContent: question,
+      };
+    }
+
+    if (lowerMessage.includes('dialogue') || lowerMessage.includes('conversation')) {
+      const dialogue = getRandomDialogue();
+      const formattedDialogue = dialogue.exchanges
+        .map((exchange: any) => `${exchange.speaker}:\n🇧🇦 ${exchange.bosnian}\n🇬🇧 ${exchange.english}`)
+        .join('\n\n');
+
+      return {
+        message: `Let's practice this dialogue:\n\n${dialogue.title}\n${dialogue.context}\n\n${formattedDialogue}`,
+        suggestions: [
+          'Practice pronunciation',
+          'Show vocabulary',
+          'Try another dialogue',
+          'Explain grammar',
+        ],
+        type: 'practice',
+        learningContent: dialogue,
+      };
+    }
   }
 
-  // Check for cultural questions
-  if (culturalPatterns.some(pattern => lowerMessage.includes(pattern))) {
-    return {
-      message: 'I\'d be happy to tell you about Bosnian culture! What specific aspect interests you?',
-      bosnianText: 'Rado ću vam pričati o bosanskoj kulturi! Koji vas aspekt posebno zanima?',
-      englishText: 'I\'d be happy to tell you about Bosnian culture! What specific aspect interests you?',
-      suggestions: [
-        'Traditional food',
-        'Music and dance',
-        'Festivals and holidays',
-        'Daily customs',
-      ],
-      type: 'culture',
-    };
-  }
-
-  // Check for grammar questions
+  // Check for grammar explanations
   if (grammarPatterns.some(pattern => lowerMessage.includes(pattern))) {
-    return {
-      message: 'Let me help you with Bosnian grammar. What specific aspect would you like to learn about?',
-      bosnianText: 'Dozvolite mi da vam pomognem sa bosanskom gramatikom. O kojem aspektu želite učiti?',
-      englishText: 'Let me help you with Bosnian grammar. What specific aspect would you like to learn about?',
-      suggestions: [
-        'Verb conjugation',
-        'Noun cases',
-        'Adjective agreement',
-        'Word order',
-      ],
-      type: 'grammar',
-    };
+    const topic = grammarPatterns.find(pattern => lowerMessage.includes(pattern)) || '';
+    const lesson = getGrammarLesson(topic);
+
+    if (lesson) {
+      const formattedExamples = lesson.examples
+        .map((ex: any) => `🇧🇦 ${ex.bosnian}\n🇬🇧 ${ex.english}\n💡 ${ex.explanation}`)
+        .join('\n\n');
+
+      return {
+        message: `📚 ${lesson.title}\n\n${lesson.explanation}\n\nExamples:\n${formattedExamples}`,
+        suggestions: [
+          'Practice this grammar',
+          'Show more examples',
+          'Try exercises',
+          'Next lesson',
+        ],
+        type: 'grammar',
+        learningContent: lesson,
+      };
+    }
   }
 
-  // Check for vocabulary questions
+  // Check for vocabulary requests
   if (vocabularyPatterns.some(pattern => lowerMessage.includes(pattern))) {
-    return {
-      message: 'I can help you with Bosnian vocabulary. Could you please specify the word or phrase you\'d like to learn?',
-      bosnianText: 'Mogu vam pomoći sa bosanskim vokabularom. Možete li specificirati riječ ili frazu koju želite naučiti?',
-      englishText: 'I can help you with Bosnian vocabulary. Could you please specify the word or phrase you\'d like to learn?',
-      type: 'vocabulary',
-    };
+    const categories = Object.keys(vocabularyCategories);
+    const category = categories.find(cat => lowerMessage.includes(cat.toLowerCase()));
+
+    if (category) {
+      const word = getRandomVocabulary(category as keyof typeof vocabularyCategories);
+      return {
+        message: `Here's a ${category} word:\n\n🇧🇦 ${word.bosnian}\n🇬🇧 ${word.english}\n💡 Context: ${word.context}`,
+        suggestions: [
+          'Show another word',
+          'Practice pronunciation',
+          'Use in a sentence',
+          'More words in this category',
+        ],
+        type: 'vocabulary',
+        learningContent: word,
+      };
+    }
   }
 
-  // Default response
+  // Check for cultural content
+  if (culturalPatterns.some(pattern => lowerMessage.includes(pattern))) {
+    const topic = culturalContent.find(content => 
+      content.tags.some(tag => lowerMessage.includes(tag.toLowerCase()))
+    );
+
+    if (topic) {
+      return {
+        message: `📚 ${topic.title}\n\n${topic.content}`,
+        suggestions: [
+          'Learn more',
+          'Related vocabulary',
+          'Show pictures',
+          'Practice conversation',
+        ],
+        type: 'culture',
+        learningContent: topic,
+      };
+    }
+  }
+
+  // Default response with learning suggestions
   return {
-    message: 'I understand you\'re interested in learning Bosnian. Could you please be more specific about what you\'d like to learn?',
-    bosnianText: 'Razumijem da ste zainteresovani za učenje bosanskog jezika. Možete li biti precizniji o tome što želite naučiti?',
-    englishText: 'I understand you\'re interested in learning Bosnian. Could you please be more specific about what you\'d like to learn?',
+    message: `I can help you learn Bosnian! Here are some options:`,
     suggestions: [
-      'Basic phrases',
-      'Grammar rules',
-      'Pronunciation help',
-      'Cultural insights',
+      'Practice vocabulary',
+      'Learn grammar',
+      'Try a conversation',
+      'Take a quiz',
+      'Explore Bosnian culture',
     ],
     type: 'general',
   };
@@ -201,5 +261,6 @@ export const processChatMessage = async (
       ? [{ type: 'audio', url: response.audioUrl }]
       : undefined,
     suggestions: response.suggestions || [],
+    learningContent: response.learningContent,
   };
 }; 

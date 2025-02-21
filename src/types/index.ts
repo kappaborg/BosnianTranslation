@@ -10,27 +10,15 @@ export interface User {
 }
 
 export interface UserProgress {
-  completedLessons: string[];
-  quizScores: QuizScore[];
-  flashcardStats: FlashcardStats;
-  writingExercises: WritingExercise[];
-  pronunciationAttempts: PronunciationAttempt[];
-  srsItems: SRSItem[];
   xpPoints: number;
+  level: number;
   dailyStreak: number;
   lastStudyDate: string;
-  level: number;
-  studyGoals: {
-    daily: number;
-    weekly: number;
-    completed: number;
-  };
-  preferences: {
-    dailyReminder: boolean;
-    reminderTime?: string;
-    difficulty: 'beginner' | 'intermediate' | 'advanced';
-    focusAreas: string[];
-  };
+  completedLessons: CompletedLesson[];
+  vocabularyMastered: number;
+  quizzesPassed: number;
+  achievements: Achievement[];
+  learningPath: LearningPath;
 }
 
 // Pronunciation Types
@@ -107,6 +95,7 @@ export interface CulturalContent {
   content: string;
   mediaUrls: string[];
   tags: string[];
+  relatedVocabulary?: VocabularyWord[];
 }
 
 // Conversation Types
@@ -163,8 +152,9 @@ export interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: string;
-  unlockedAt?: string;
+  earnedAt: string;
+  type: 'milestone' | 'skill' | 'streak' | 'special';
+  icon?: string;
 }
 
 // Quiz Types
@@ -195,14 +185,12 @@ export interface SRSItem {
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  attachments?: {
-    type: 'image' | 'audio' | 'video';
-    url: string;
-  }[];
+  attachments?: Attachment[];
   suggestions?: string[];
+  learningContent?: any;
 }
 
 export interface ChatSession {
@@ -245,4 +233,114 @@ export interface QuizQuestion {
   explanation?: string;
   points: number;
   difficulty: 'easy' | 'medium' | 'hard';
+}
+
+export interface CompletedLesson {
+  id: string;
+  title: string;
+  type: 'vocabulary' | 'grammar' | 'pronunciation' | 'culture' | 'quiz';
+  completedAt: string;
+  score: number;
+}
+
+export interface LearningPath {
+  currentLevel: 'beginner' | 'intermediate' | 'advanced';
+  focusAreas: string[];
+  completedTopics: string[];
+  nextMilestones: string[];
+}
+
+export interface VocabularyWord {
+  bosnian: string;
+  english: string;
+  context: string;
+  usage?: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  category: string;
+  audioUrl?: string;
+}
+
+export interface PracticeDialogue {
+  title: string;
+  context: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  exchanges: DialogueExchange[];
+  vocabulary: VocabularyWord[];
+  audioUrl?: string;
+}
+
+export interface UserSettings {
+  theme: 'light' | 'dark' | 'system';
+  audioEnabled: boolean;
+  dailyGoal: number;
+  notificationsEnabled: boolean;
+  preferredLearningStyle: 'visual' | 'auditory' | 'reading' | 'kinesthetic';
+  focusAreas: string[];
+}
+
+export interface LearningSession {
+  id: string;
+  startTime: string;
+  endTime?: string;
+  activities: LearningActivity[];
+  totalXPEarned: number;
+  mistakes: number;
+  corrections: number;
+}
+
+export interface LearningActivity {
+  type: 'vocabulary' | 'grammar' | 'pronunciation' | 'culture' | 'quiz';
+  content: any;
+  duration: number;
+  score: number;
+  mistakes: string[];
+  corrections: string[];
+}
+
+export interface PronunciationFeedback {
+  word: string;
+  accuracy: number;
+  issues?: string[];
+  suggestions: string[];
+  audioUrl?: string;
+}
+
+export interface WritingExercise {
+  prompt: string;
+  expectedLength: number;
+  topics: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  examples?: string[];
+  rubric: WritingRubric;
+}
+
+export interface WritingRubric {
+  grammar: number;
+  vocabulary: number;
+  coherence: number;
+  creativity: number;
+  totalScore: number;
+  feedback: string[];
+}
+
+export interface SRSCard {
+  id: string;
+  front: string;
+  back: string;
+  type: 'vocabulary' | 'grammar' | 'phrase';
+  level: number;
+  nextReview: string;
+  history: ReviewHistory[];
+}
+
+export interface ReviewHistory {
+  date: string;
+  performance: 'perfect' | 'good' | 'fair' | 'poor';
+  timeSpent: number;
+}
+
+export interface Attachment {
+  type: 'image' | 'audio' | 'video';
+  url: string;
+  description?: string;
 } 
