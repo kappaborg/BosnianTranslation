@@ -15,6 +15,22 @@ export interface UserProgress {
   flashcardStats: FlashcardStats;
   writingExercises: WritingExercise[];
   pronunciationAttempts: PronunciationAttempt[];
+  srsItems: SRSItem[];
+  xpPoints: number;
+  dailyStreak: number;
+  lastStudyDate: string;
+  level: number;
+  studyGoals: {
+    daily: number;
+    weekly: number;
+    completed: number;
+  };
+  preferences: {
+    dailyReminder: boolean;
+    reminderTime?: string;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    focusAreas: string[];
+  };
 }
 
 // Pronunciation Types
@@ -157,4 +173,75 @@ export interface QuizScore {
   score: number;
   totalQuestions: number;
   date: string;
+}
+
+// SRS Types
+export interface SRSItem {
+  id: string;
+  type: 'vocabulary' | 'phrase' | 'grammar';
+  content: {
+    bosnian: string;
+    english: string;
+    context?: string;
+    audioUrl?: string;
+  };
+  level: number; // 0-5, representing difficulty levels
+  nextReview: string; // ISO date string
+  lastReviewed?: string;
+  reviewCount: number;
+  successCount: number;
+  failureCount: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  attachments?: {
+    type: 'image' | 'audio' | 'video';
+    url: string;
+  }[];
+}
+
+export interface ChatSession {
+  id: string;
+  userId: string;
+  messages: ChatMessage[];
+  context: {
+    topic?: string;
+    difficulty?: string;
+    focusArea?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Enhanced Quiz Types
+export interface EnhancedQuiz {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  type: 'multiple-choice' | 'fill-in-blanks' | 'matching' | 'listening' | 'speaking';
+  questions: QuizQuestion[];
+  timeLimit?: number; // in seconds
+  passingScore: number;
+  xpReward: number;
+  prerequisites?: string[]; // IDs of quizzes that should be completed first
+}
+
+export interface QuizQuestion {
+  id: string;
+  type: 'multiple-choice' | 'fill-in-blanks' | 'matching' | 'listening' | 'speaking';
+  question: {
+    text: string;
+    audioUrl?: string;
+    imageUrl?: string;
+  };
+  options?: string[];
+  correctAnswer: string | string[];
+  explanation?: string;
+  points: number;
+  difficulty: 'easy' | 'medium' | 'hard';
 } 
