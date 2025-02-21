@@ -343,4 +343,31 @@ export interface Attachment {
   type: 'image' | 'audio' | 'video';
   url: string;
   description?: string;
+}
+
+// Exercise Types
+export interface Exercise {
+  id: string;
+  title: string;
+  description: string;
+  type: 'quiz' | 'flashcards' | 'writing' | 'speaking' | 'listening' | 'matching';
+  content: Array<{
+    question: string;
+    answer: string;
+    options?: string[];
+    chinese?: string;
+  }>;
+  correctAnswer?: string;
+  context?: string;
+}
+
+export interface VocabularyWord {
+  id: string;
+  bosnian: string;
+  english: string;
+  chinese?: string;
+  context?: string;
+  audioUrl?: string;
+  examples: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
 } 
