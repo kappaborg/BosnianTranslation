@@ -202,6 +202,7 @@ export interface ChatMessage {
     type: 'image' | 'audio' | 'video';
     url: string;
   }[];
+  suggestions?: string[];
 }
 
 export interface ChatSession {

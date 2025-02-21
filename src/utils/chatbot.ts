@@ -1,4 +1,5 @@
 import { ChatMessage } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatResponse {
   message: string;
@@ -192,13 +193,13 @@ export const processChatMessage = async (
   }
 
   return {
-    id: Date.now().toString(),
+    id: uuidv4(),
     role: 'assistant',
     content,
     timestamp: new Date().toISOString(),
     attachments: response.audioUrl
       ? [{ type: 'audio', url: response.audioUrl }]
       : undefined,
-    suggestions: response.suggestions,
+    suggestions: response.suggestions || [],
   };
 }; 
