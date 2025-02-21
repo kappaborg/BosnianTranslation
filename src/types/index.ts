@@ -251,13 +251,16 @@ export interface LearningPath {
 }
 
 export interface VocabularyWord {
+  id: string;
   bosnian: string;
   english: string;
+  chinese?: string;
   context: string;
   usage?: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   category: string;
   audioUrl?: string;
+  examples: string[];
 }
 
 export interface PracticeDialogue {
@@ -359,15 +362,4 @@ export interface Exercise {
   }>;
   correctAnswer?: string;
   context?: string;
-}
-
-export interface VocabularyWord {
-  id: string;
-  bosnian: string;
-  english: string;
-  chinese?: string;
-  context?: string;
-  audioUrl?: string;
-  examples: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
 } 
