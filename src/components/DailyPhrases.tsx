@@ -1,8 +1,8 @@
 'use client';
 
+import AudioPronunciation from '@/components/AudioPronunciation';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import AudioPronunciation from './AudioPronunciation';
+import { useEffect, useState } from 'react';
 
 interface Phrase {
   bosnian: string;
@@ -63,6 +63,32 @@ export default function DailyPhrases() {
     ? phrases 
     : phrases.filter(phrase => phrase.category === selectedCategory);
 
+  const [phrases, setPhrases] = useState<Phrase[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // In a real app, fetch from API
+    setPhrases(phrases);
+  }, []);
+
+  const nextPhrase = () => {
+    setCurrentIndex((prev) => (prev + 1) % phrases.length);
+  };
+
+  const previousPhrase = () => {
+    setCurrentIndex((prev) => (prev - 1 + phrases.length) % phrases.length);
+  };
+
+  if (phrases.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500" />
+      </div>
+    );
+  }
+
+  const phrase = phrases[currentIndex];
+
   return (
     <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Daily Phrases</h2>
@@ -103,13 +129,34 @@ export default function DailyPhrases() {
                   {phrase.english}
                 </p>
               </div>
-              <AudioPronunciation text={phrase.bosnian} />
+              <AudioPronunciation text={phrase.bosnian} lang="bs" />
             </div>
             <div className="text-xs text-indigo-600 dark:text-indigo-400">
               {phrase.category}
             </div>
           </motion.div>
         ))}
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={previousPhrase}
+          className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200
+            dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+            soft:bg-gray-200 soft:text-gray-700 soft:hover:bg-gray-300"
+        >
+          Previous
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={nextPhrase}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+        >
+          Next
+        </motion.button>
       </div>
     </div>
   );
