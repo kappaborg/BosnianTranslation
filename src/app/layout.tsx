@@ -24,6 +24,10 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>BosniaTrans - Learn Bosnian Language</title>
+        <meta name="description" content="Interactive platform for learning Bosnian language with translation, quizzes, and more" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <div className="flex flex-col min-h-screen">
