@@ -10,7 +10,7 @@ interface Phrase {
   category: string;
 }
 
-const phrases: Phrase[] = [
+const defaultPhrases: Phrase[] = [
   // Greetings
   { bosnian: 'Dobar dan', english: 'Good day', category: 'Greetings' },
   { bosnian: 'Dobro jutro', english: 'Good morning', category: 'Greetings' },
@@ -55,28 +55,28 @@ const phrases: Phrase[] = [
   { bosnian: 'Toplo je', english: "It's warm", category: 'Weather' }
 ];
 
+const defaultCategories = ['All', ...new Set(defaultPhrases.map(phrase => phrase.category))];
+
 export default function DailyPhrases() {
+  const [phrases, setPhrases] = useState<Phrase[]>(defaultPhrases);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const categories = ['All', ...new Set(phrases.map(phrase => phrase.category))];
-  
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const filteredPhrases = selectedCategory === 'All' 
     ? phrases 
     : phrases.filter(phrase => phrase.category === selectedCategory);
 
-  const [phrases, setPhrases] = useState<Phrase[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
-    // In a real app, fetch from API
-    setPhrases(phrases);
-  }, []);
+    // Reset current index when category changes
+    setCurrentIndex(0);
+  }, [selectedCategory]);
 
   const nextPhrase = () => {
-    setCurrentIndex((prev) => (prev + 1) % phrases.length);
+    setCurrentIndex((prev) => (prev + 1) % filteredPhrases.length);
   };
 
   const previousPhrase = () => {
-    setCurrentIndex((prev) => (prev - 1 + phrases.length) % phrases.length);
+    setCurrentIndex((prev) => (prev - 1 + filteredPhrases.length) % filteredPhrases.length);
   };
 
   if (phrases.length === 0) {
@@ -87,14 +87,12 @@ export default function DailyPhrases() {
     );
   }
 
-  const phrase = phrases[currentIndex];
-
   return (
     <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Daily Phrases</h2>
       
       <div className="flex flex-wrap gap-2 mb-6">
-        {categories.map((category) => (
+        {defaultCategories.map((category) => (
           <motion.button
             key={category}
             whileHover={{ scale: 1.05 }}
@@ -138,26 +136,28 @@ export default function DailyPhrases() {
         ))}
       </div>
 
-      <div className="flex justify-between mt-6">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={previousPhrase}
-          className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200
-            dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
-            soft:bg-gray-200 soft:text-gray-700 soft:hover:bg-gray-300"
-        >
-          Previous
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={nextPhrase}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-        >
-          Next
-        </motion.button>
-      </div>
+      {filteredPhrases.length > 1 && (
+        <div className="flex justify-between mt-6">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={previousPhrase}
+            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200
+              dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+              soft:bg-gray-200 soft:text-gray-700 soft:hover:bg-gray-300"
+          >
+            Previous
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={nextPhrase}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Next
+          </motion.button>
+        </div>
+      )}
     </div>
   );
 } 
