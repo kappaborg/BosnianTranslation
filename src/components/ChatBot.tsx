@@ -1,5 +1,6 @@
 'use client';
 
+import AudioPronunciation from '@/components/AudioPronunciation';
 import { ChatMessage } from '@/types';
 import { processChatMessage } from '@/utils/chatbot';
 import {
@@ -9,7 +10,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import AudioPronunciation from './AudioPronunciation';
 
 interface Props {
   isOpen: boolean;
@@ -175,7 +175,7 @@ export default function ChatBot({ isOpen, onClose, initialContext }: Props) {
                   ))}
                   {message.role === 'assistant' && (
                     <div className="mt-2 flex items-center justify-end space-x-2">
-                      <AudioPronunciation text={message.content} />
+                      <AudioPronunciation text={message.content} lang="bs" />
                     </div>
                   )}
                 </div>
