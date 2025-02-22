@@ -1,5 +1,6 @@
 'use client';
 
+import AudioPronunciation from '@/components/AudioPronunciation';
 import { Exercise, VocabularyWord } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
@@ -76,6 +77,47 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
     return 'Question not available';
   };
 
+  const renderAudioControls = () => {
+    if ('bosnian' in exercise) {
+      return (
+        <div className="flex items-center justify-center space-x-4 mb-4">
+          <div className="flex flex-col items-center">
+            <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">Bosnian</span>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <AudioPronunciation text={exercise.bosnian} lang="bs" />
+            </motion.div>
+          </div>
+          {exercise.english && (
+            <div className="flex flex-col items-center">
+              <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">English</span>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <AudioPronunciation text={exercise.english} lang="en" />
+              </motion.div>
+            </div>
+          )}
+          {exercise.chinese && (
+            <div className="flex flex-col items-center">
+              <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">Chinese</span>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <AudioPronunciation text={exercise.chinese} lang="zh" />
+              </motion.div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -90,9 +132,10 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {renderQuestion()}
           </h3>
+          {renderAudioControls()}
           {type === 'vocabulary' && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Enter the correct translation

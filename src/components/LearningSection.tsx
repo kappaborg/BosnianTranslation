@@ -8,11 +8,41 @@ import DragDropQuiz from './DragDropQuiz';
 import Quiz from './Quiz';
 
 const commonPhrases = [
-  { english: 'Hello', bosnian: 'Zdravo', pronunciation: 'ZDRAH-voh' },
-  { english: 'Thank you', bosnian: 'Hvala', pronunciation: 'HVAH-lah' },
-  { english: 'Please', bosnian: 'Molim', pronunciation: 'MOH-leem' },
-  { english: 'How are you?', bosnian: 'Kako si?', pronunciation: 'KAH-koh see' },
-  { english: 'Good morning', bosnian: 'Dobro jutro', pronunciation: 'DOH-broh YOO-troh' },
+  { 
+    english: 'Hello', 
+    bosnian: 'Zdravo', 
+    chinese: '你好',
+    pronunciation: 'ZDRAH-voh',
+    context: 'Greeting someone'
+  },
+  { 
+    english: 'Thank you', 
+    bosnian: 'Hvala', 
+    chinese: '谢谢',
+    pronunciation: 'HVAH-lah',
+    context: 'Expressing gratitude'
+  },
+  { 
+    english: 'Please', 
+    bosnian: 'Molim', 
+    chinese: '请',
+    pronunciation: 'MOH-leem',
+    context: 'Making a request'
+  },
+  { 
+    english: 'How are you?', 
+    bosnian: 'Kako si?', 
+    chinese: '你好吗？',
+    pronunciation: 'KAH-koh see',
+    context: 'Asking about well-being'
+  },
+  { 
+    english: 'Good morning', 
+    bosnian: 'Dobro jutro', 
+    chinese: '早上好',
+    pronunciation: 'DOH-broh YOO-troh',
+    context: 'Morning greeting'
+  },
   { english: 'Goodbye', bosnian: 'Doviđenja', pronunciation: 'doh-vee-JEN-yah' },
   { english: 'Yes', bosnian: 'Da', pronunciation: 'dah' },
   { english: 'No', bosnian: 'Ne', pronunciation: 'neh' },
@@ -87,43 +117,69 @@ export default function LearningSection() {
       </div>
 
       {selectedTab === 'phrases' && (
-        <>
-          <div className="grid gap-4">
-            {commonPhrases.map((phrase, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-lg font-medium text-gray-900">{phrase.english}</p>
-                    <p className="text-xl font-semibold text-indigo-600 flex items-center gap-2">
-                      {phrase.bosnian}
-                      <AudioPronunciation text={phrase.bosnian} lang="bs" />
-                    </p>
+        <div className="grid gap-4">
+          {commonPhrases.map((phrase, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border dark:border-gray-700 hover:shadow-md transition-shadow"
+            >
+              <div className="flex flex-col space-y-4">
+                {/* Context */}
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  {phrase.context}
+                </p>
+
+                {/* English */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">EN</span>
+                    <p className="text-lg font-medium text-gray-900 dark:text-gray-100">{phrase.english}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Pronunciation:</p>
-                    <p className="text-sm font-medium text-gray-700">{phrase.pronunciation}</p>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <AudioPronunciation text={phrase.english} lang="en" />
+                  </motion.div>
+                </div>
+
+                {/* Bosnian */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">BS</span>
+                    <p className="text-xl font-semibold text-indigo-600 dark:text-indigo-400">{phrase.bosnian}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{phrase.pronunciation}</p>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <AudioPronunciation text={phrase.bosnian} lang="bs" />
+                    </motion.div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
 
-          <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
-            <h3 className="text-lg font-semibold text-indigo-900 mb-2">Pro Tips:</h3>
-            <ul className="list-disc list-inside text-indigo-800 space-y-2">
-              <li>Bosnian pronunciation is phonetic - each letter always represents the same sound</li>
-              <li>Stress is usually on the first syllable of the word</li>
-              <li>Practice speaking out loud to improve your accent</li>
-              <li>Click the speaker icon to hear the pronunciation</li>
-            </ul>
-          </div>
-        </>
+                {/* Chinese */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">ZH</span>
+                    <p className="text-xl font-semibold text-purple-600 dark:text-purple-400">{phrase.chinese}</p>
+                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <AudioPronunciation text={phrase.chinese} lang="zh" />
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       )}
 
       {selectedTab === 'categories' && <Categories />}

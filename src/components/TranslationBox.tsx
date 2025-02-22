@@ -1,7 +1,7 @@
 'use client';
 
 import { translateText } from '@/utils/translation';
-import { ArrowsRightLeftIcon, LanguageIcon } from '@heroicons/react/24/outline';
+import { ArrowsRightLeftIcon, LanguageIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import AudioPronunciation from './AudioPronunciation';
@@ -25,21 +25,21 @@ export default function TranslationBox() {
   const [translatedText, setTranslatedText] = useState('');
   const [sourceLang, setSourceLang] = useState<LanguageCode>('en');
   const [targetLang, setTargetLang] = useState<LanguageCode>('bs');
-  const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const handleTranslate = async () => {
     if (!sourceText.trim()) return;
-    
+
     setIsTranslating(true);
     setError(null);
-    
+
     try {
       const result = await translateText(sourceText, sourceLang, targetLang);
       setTranslatedText(result);
     } catch (err) {
-      setError('Translation failed. Please try again later.');
-      console.error(err);
+      setError('Translation failed. Please try again.');
+      console.error('Translation error:', err);
     } finally {
       setIsTranslating(false);
     }
@@ -50,7 +50,6 @@ export default function TranslationBox() {
     setTargetLang(sourceLang);
     setSourceText(translatedText);
     setTranslatedText(sourceText);
-    setError(null);
   };
 
   const getLanguageSelectStyles = (isSource: boolean) => `
@@ -62,9 +61,10 @@ export default function TranslationBox() {
   `;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-        <div className="w-full md:w-2/5">
+    <div className="space-y-6">
+      {/* Language Selection */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
           <select
             value={sourceLang}
             onChange={(e) => setSourceLang(e.target.value as LanguageCode)}
@@ -79,16 +79,15 @@ export default function TranslationBox() {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.1, rotate: 180 }}
+          whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          transition={{ duration: 0.3 }}
           onClick={switchLanguages}
-          className="p-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
+          className="mx-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
         >
-          <ArrowsRightLeftIcon className="w-6 h-6" />
+          <ArrowsRightLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
         </motion.button>
 
-        <div className="w-full md:w-2/5">
+        <div className="flex-1">
           <select
             value={targetLang}
             onChange={(e) => setTargetLang(e.target.value as LanguageCode)}
@@ -104,6 +103,7 @@ export default function TranslationBox() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Source Text */}
         <div className="flex flex-col">
           <div className="relative">
             <textarea
@@ -117,13 +117,19 @@ export default function TranslationBox() {
               dir={sourceLang === 'zh' ? 'ltr' : 'auto'}
             />
             {sourceText && (
-              <div className="absolute bottom-4 right-4">
-                <AudioPronunciation text={sourceText} lang={sourceLang} />
+              <div className="absolute bottom-4 right-4 flex items-center space-x-2">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <AudioPronunciation text={sourceText} lang={sourceLang} />
+                </motion.div>
               </div>
             )}
           </div>
         </div>
 
+        {/* Translated Text */}
         <div className="flex flex-col">
           <div className="relative">
             <textarea
@@ -137,12 +143,35 @@ export default function TranslationBox() {
               dir={targetLang === 'zh' ? 'ltr' : 'auto'}
             />
             {translatedText && (
-              <div className="absolute bottom-4 right-4">
-                <AudioPronunciation text={translatedText} lang={targetLang} />
+              <div className="absolute bottom-4 right-4 flex items-center space-x-2">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <AudioPronunciation text={translatedText} lang={targetLang} />
+                </motion.div>
               </div>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Translate Button */}
+      <div className="flex justify-center">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleTranslate}
+          disabled={!sourceText.trim() || isTranslating}
+          className={`px-6 py-3 rounded-lg text-white font-medium flex items-center space-x-2
+            ${isTranslating || !sourceText.trim()
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
+        >
+          <LanguageIcon className="w-5 h-5" />
+          <span>{isTranslating ? 'Translating...' : 'Translate'}</span>
+        </motion.button>
       </div>
 
       {error && (
@@ -150,27 +179,6 @@ export default function TranslationBox() {
           {error}
         </div>
       )}
-
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={handleTranslate}
-        disabled={isTranslating || !sourceText.trim()}
-        className={`mt-6 w-full py-4 px-6 rounded-lg text-white font-medium text-lg shadow-md
-          ${isTranslating || !sourceText.trim()
-            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
-          }`}
-      >
-        {isTranslating ? (
-          <div className="flex items-center justify-center">
-            <LanguageIcon className="w-6 h-6 animate-spin mr-2" />
-            <span>Translating...</span>
-          </div>
-        ) : (
-          'Translate'
-        )}
-      </motion.button>
 
       <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         <p className="font-medium text-gray-700 dark:text-gray-300 mb-3">Tips:</p>
