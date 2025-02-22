@@ -26,8 +26,8 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
     setIsCorrect(correct);
     setFeedback(
       correct
-        ? 'Excellent! You got it right!'
-        : `Not quite. Try again! Hint: ${getHint()}`
+        ? 'Excellent! You got it right! 🎉'
+        : `Not quite. Try again! 💪 Hint: ${getHint()}`
     );
     setAttempts(attempts + 1);
 
@@ -43,7 +43,6 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
     } else if ('bosnian' in exercise) {
       return userAnswer.toLowerCase().trim() === exercise.bosnian.toLowerCase().trim();
     }
-    // If no valid answer can be checked, return false
     return false;
   };
 
@@ -68,49 +67,85 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
     }
   };
 
+  const renderQuestion = () => {
+    if ('content' in exercise && Array.isArray(exercise.content) && exercise.content.length > 0) {
+      return exercise.content[0].question;
+    } else if ('bosnian' in exercise) {
+      return `Translate: ${exercise.bosnian}`;
+    }
+    return 'Question not available';
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-        <div className="mb-4">
-          {'question' in exercise ? (
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              {exercise.content[0].question}
-            </h3>
-          ) : (
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Translate: {exercise.bosnian}
-            </h3>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-4"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mb-6"
+        >
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {renderQuestion()}
+          </h3>
+          {type === 'vocabulary' && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Enter the correct translation
+            </p>
           )}
-        </div>
+        </motion.div>
 
-        <input
-          type="text"
-          value={userAnswer}
-          onChange={(e) => setUserAnswer(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          placeholder="Type your answer..."
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <input
+            type="text"
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 
+              focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 
+              dark:text-white transition-all duration-200 text-lg"
+            placeholder="Type your answer..."
+          />
+        </motion.div>
 
-        <div className="mt-4 flex justify-between">
-          <button
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-6 flex justify-between items-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setShowHint(true)}
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 
+              dark:hover:bg-blue-900/30 rounded-lg transition-colors duration-200"
           >
-            Show Hint
-          </button>
-          <button
+            💡 Show Hint
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={checkAnswer}
             disabled={!userAnswer}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
               userAnswer
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg'
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Check Answer
-          </button>
-        </div>
+            ✨ Check Answer
+          </motion.button>
+        </motion.div>
 
         <AnimatePresence>
           {showHint && (
@@ -118,9 +153,13 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg"
+              transition={{ duration: 0.3 }}
+              className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800"
             >
-              <p className="text-blue-800 dark:text-blue-200">{getHint()}</p>
+              <p className="text-blue-800 dark:text-blue-200 flex items-center">
+                <span className="mr-2">💭</span>
+                {getHint()}
+              </p>
             </motion.div>
           )}
 
@@ -129,18 +168,47 @@ const InteractiveExercise: React.FC<InteractiveExerciseProps> = ({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className={`mt-4 p-4 rounded-lg ${
+              transition={{ duration: 0.3 }}
+              className={`mt-4 p-4 rounded-lg border ${
                 isCorrect
-                  ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                  : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200'
+                  ? 'bg-green-50 dark:bg-green-900/30 border-green-100 dark:border-green-800 text-green-800 dark:text-green-200'
+                  : 'bg-red-50 dark:bg-red-900/30 border-red-100 dark:border-red-800 text-red-800 dark:text-red-200'
               }`}
             >
-              {feedback}
+              <p className="flex items-center">
+                <span className="mr-2">{isCorrect ? '🎉' : '💪'}</span>
+                {feedback}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+        >
+          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <span>Attempts: {attempts}/3</span>
+            <span>Score: {calculateScore()} points</span>
+          </div>
+          <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(attempts / 3) * 100}%` }}
+              className={`h-full ${
+                attempts === 3
+                  ? 'bg-red-500'
+                  : attempts === 2
+                  ? 'bg-yellow-500'
+                  : 'bg-green-500'
+              }`}
+            />
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
