@@ -33,9 +33,9 @@ export default function ProgressDashboard({ user }: Props) {
 
   const getLatestAchievements = (count: number): Achievement[] => {
     return user.achievements
-      .filter(achievement => achievement.unlockedAt)
+      .filter(achievement => achievement.earnedAt)
       .sort((a, b) => {
-        return new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime();
+        return new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime();
       })
       .slice(0, count);
   };
