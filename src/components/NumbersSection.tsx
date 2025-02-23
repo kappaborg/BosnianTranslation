@@ -66,7 +66,7 @@ export default function NumbersSection() {
               <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                 {item.number}
               </span>
-              <AudioPronunciation text={item.bosnian} />
+              <AudioPronunciation text={item.bosnian} lang="bs" />
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">{item.bosnian}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">{item.english}</div>
