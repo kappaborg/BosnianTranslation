@@ -1,6 +1,7 @@
 'use client';
 
-import { VocabularyWord, vocabularyWords } from '@/data/vocabulary';
+import { vocabularyWords } from '@/data/vocabulary';
+import { VocabularyWord } from '@/types';
 import { setupSpeechSynthesis } from '@/utils/pronunciation';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence, motion } from 'framer-motion';
