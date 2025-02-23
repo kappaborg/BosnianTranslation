@@ -19,46 +19,52 @@ export const bosnianLetterMap: Record<string, string> = {
 
 // Bosnian phonetic patterns for more accurate pronunciation
 const phoneticPatterns: PhoneticPatterns = {
-  // Basic vowels
+  // Basic vowels with stress patterns
   'a': 'ah',
   'e': 'eh',
   'i': 'ee',
   'o': 'oh',
   'u': 'oo',
 
-  // Special characters
+  // Special characters with more accurate pronunciation
   'č': 'ch',
-  'ć': 'ch',
-  'đ': 'dj',
+  'ć': 'ty',
+  'đ': 'dy',
   'dž': 'j',
   'š': 'sh',
   'ž': 'zh',
   'lj': 'ly',
   'nj': 'ny',
 
-  // Common syllables
+  // Common syllables with stress patterns
   'ja': 'yah',
   'je': 'yeh',
   'ji': 'yee',
   'jo': 'yoh',
   'ju': 'yoo',
+  'ije': 'ee-yeh',
+  'ija': 'ee-yah',
+  'iju': 'ee-yoo',
 
-  // Common word endings
+  // Common word endings with stress
   'ati': 'ah-tee',
   'iti': 'ee-tee',
+  'eti': 'eh-tee',
   'ski': 'skee',
   'ški': 'shkee',
   'čki': 'chkee',
-  'ćki': 'chkee',
+  'ćki': 'tykee',
 
-  // Common prefixes
+  // Common prefixes with stress
   'pre': 'preh',
   'pri': 'pree',
   'pro': 'proh',
   'pod': 'pohd',
   'nad': 'nahd',
+  'raz': 'rahz',
+  'iz': 'eez',
 
-  // Common words
+  // Common words with correct stress
   'hvala': 'HVAH-lah',
   'molim': 'MOH-leem',
   'dobar': 'DOH-bahr',
@@ -72,11 +78,27 @@ const phoneticPatterns: PhoneticPatterns = {
   'na': 'nah',
   'za': 'zah',
   'sa': 'sah',
-  'iz': 'eez',
   'od': 'ohd',
   'do': 'doh',
   'po': 'poh',
-  'kroz': 'krohz'
+  'kroz': 'krohz',
+  'dobro': 'DOH-broh',
+  'jutro': 'YOO-troh',
+  'veče': 'VEH-cheh',
+  'zdravo': 'ZDRAH-voh',
+  'prijatno': 'pree-YAHT-noh',
+  'vidimo': 'VEE-dee-moh',
+  'se': 'seh',
+  'jedan': 'YEH-dahn',
+  'dva': 'dvah',
+  'tri': 'tree',
+  'četiri': 'CHEH-tee-ree',
+  'pet': 'peht',
+  'šest': 'shehst',
+  'sedam': 'SEH-dahm',
+  'osam': 'OH-sahm',
+  'devet': 'DEH-veht',
+  'deset': 'DEH-seht'
 };
 
 export const preprocessBosnianText = (text: string | undefined): string => {
@@ -129,10 +151,18 @@ export const preprocessBosnianText = (text: string | undefined): string => {
 };
 
 export const getBosnianVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
-  // Try to find a Croatian voice first (closest to Bosnian)
+  // Try to find a Bosnian voice first
+  const bosnianVoice = voices.find(voice => 
+    voice.lang.toLowerCase().includes('bs') ||
+    voice.name.toLowerCase().includes('bosnian') ||
+    voice.name.toLowerCase().includes('bosanski')
+  );
+  
+  if (bosnianVoice) return bosnianVoice;
+  
+  // Try to find a Croatian voice (closest to Bosnian)
   const croatianVoice = voices.find(voice => 
     voice.lang.toLowerCase().includes('hr') ||
-    voice.lang.toLowerCase().includes('bs') ||
     voice.name.toLowerCase().includes('croatian') ||
     voice.name.toLowerCase().includes('hrvatski')
   );
@@ -153,21 +183,41 @@ export const getBosnianVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesis
     voice.lang.toLowerCase().includes('sl') ||
     voice.lang.toLowerCase().includes('hr') ||
     voice.lang.toLowerCase().includes('bs') ||
-    voice.lang.toLowerCase().includes('sr')
+    voice.lang.toLowerCase().includes('sr') ||
+    voice.lang.toLowerCase().includes('mk')
   ) || null;
 };
 
 export function setupSpeechSynthesis(text: string, lang: string = 'bs'): SpeechSynthesisUtterance {
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.rate = 0.8; // Slightly slower for better clarity
-  utterance.pitch = 1;
   
-  // Find a voice that matches our language if available
-  const voices = window.speechSynthesis.getVoices();
-  const voice = voices.find(v => v.lang.startsWith(lang)) || voices[0];
-  if (voice) {
-    utterance.voice = voice;
+  // Set initial language
+  utterance.lang = lang;
+  
+  // Adjust speech parameters for Bosnian pronunciation
+  if (lang === 'bs') {
+    utterance.rate = 0.8; // Slower rate for clearer pronunciation
+    utterance.pitch = 1.1; // Slightly higher pitch for Slavic sounds
+    
+    // Preprocess text for better pronunciation
+    const processedText = preprocessBosnianText(text);
+    utterance.text = processedText;
+    
+    // Get available voices
+    const voices = window.speechSynthesis.getVoices();
+    const bosnianVoice = getBosnianVoice(voices);
+    
+    if (bosnianVoice) {
+      utterance.voice = bosnianVoice;
+    } else {
+      // If no suitable voice found, use English voice with modified parameters
+      const englishVoice = voices.find(v => v.lang === 'en-US');
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+        utterance.rate = 0.7; // Even slower for English voice
+        utterance.pitch = 1.2; // Higher pitch for better approximation
+      }
+    }
   }
 
   return utterance;
