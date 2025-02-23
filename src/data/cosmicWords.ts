@@ -2,160 +2,160 @@ import { CosmicWord } from '@/types';
 
 export const cosmicWords: CosmicWord[] = [
   // Numbers
-  { 
-    bosnian: 'jedan', 
-    english: 'one',
+  {
+    word: 'jedan',
+    translation: 'one',
     pronunciation: 'YEH-dahn',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'numbers',
     context: 'Counting, basic numbers',
     examples: ['Imam jedan problem.', 'Jedan, dva, tri...']
   },
-  { 
-    bosnian: 'dva', 
-    english: 'two',
-    pronunciation: 'DVAH',
-    difficulty: 'easy',
+  {
+    word: 'dva',
+    translation: 'two',
+    pronunciation: 'dvah',
+    difficulty: 'beginner',
     category: 'numbers',
     context: 'Counting, basic numbers',
-    examples: ['Dva dana.', 'Dva plus dva je četiri.']
+    examples: ['Imam dva brata.', 'Dva plus dva je četiri.']
   },
   
   // Greetings
-  { 
-    bosnian: 'zdravo', 
-    english: 'hello',
+  {
+    word: 'zdravo',
+    translation: 'hello',
     pronunciation: 'ZDRAH-voh',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'greetings',
     context: 'Basic greetings',
     examples: ['Zdravo, kako si?', 'Zdravo svima!']
   },
-  { 
-    bosnian: 'dobar dan', 
-    english: 'good day',
+  {
+    word: 'dobar dan',
+    translation: 'good day',
     pronunciation: 'DOH-bahr dahn',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'greetings',
     context: 'Formal greetings',
     examples: ['Dobar dan, gospodine.', 'Dobar dan svima.']
   },
 
   // Common Phrases
-  { 
-    bosnian: 'hvala', 
-    english: 'thank you',
+  {
+    word: 'hvala',
+    translation: 'thank you',
     pronunciation: 'HVAH-lah',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'phrases',
-    context: 'Expressing gratitude',
-    examples: ['Hvala lijepo.', 'Hvala vam.']
+    context: 'Basic expressions of gratitude',
+    examples: ['Hvala lijepa!', 'Hvala na pomoći.']
   },
-  { 
-    bosnian: 'molim', 
-    english: 'please/you're welcome',
+  {
+    word: 'molim',
+    translation: "please/you're welcome",
     pronunciation: 'MOH-leem',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'phrases',
     context: 'Politeness, responses',
     examples: ['Molim vas.', 'Hvala! - Molim!']
   },
 
   // Food and Drinks
-  { 
-    bosnian: 'kahva', 
-    english: 'coffee',
+  {
+    word: 'kahva',
+    translation: 'coffee',
     pronunciation: 'KAH-hvah',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'food',
     context: 'Beverages, traditional drinks',
     examples: ['Bosanska kahva.', 'Želite li kahvu?']
   },
-  { 
-    bosnian: 'čaj', 
-    english: 'tea',
+  {
+    word: 'čaj',
+    translation: 'tea',
     pronunciation: 'chay',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'food',
     context: 'Beverages',
     examples: ['Želim čaj.', 'Čaj sa limunom.']
   },
 
   // Questions
-  { 
-    bosnian: 'kako', 
-    english: 'how',
+  {
+    word: 'kako',
+    translation: 'how',
     pronunciation: 'KAH-koh',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'questions',
     context: 'Basic questions',
     examples: ['Kako si?', 'Kako se zoveš?']
   },
-  { 
-    bosnian: 'gdje', 
-    english: 'where',
+  {
+    word: 'gdje',
+    translation: 'where',
     pronunciation: 'g-dyeh',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'questions',
     context: 'Location questions',
     examples: ['Gdje si?', 'Gdje ideš?']
   },
 
   // Weather
-  { 
-    bosnian: 'sunčano', 
-    english: 'sunny',
+  {
+    word: 'sunčano',
+    translation: 'sunny',
     pronunciation: 'SUN-cha-noh',
-    difficulty: 'medium',
+    difficulty: 'beginner',
     category: 'weather',
     context: 'Weather descriptions',
     examples: ['Danas je sunčano.', 'Bit će sunčano.']
   },
-  { 
-    bosnian: 'kiša', 
-    english: 'rain',
+  {
+    word: 'kiša',
+    translation: 'rain',
     pronunciation: 'KEE-shah',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'weather',
     context: 'Weather conditions',
     examples: ['Pada kiša.', 'Bit će kiše.']
   },
 
   // Time
-  { 
-    bosnian: 'danas', 
-    english: 'today',
+  {
+    word: 'danas',
+    translation: 'today',
     pronunciation: 'DAH-nahs',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'time',
     context: 'Time expressions',
     examples: ['Danas je lijep dan.', 'Šta radiš danas?']
   },
-  { 
-    bosnian: 'sutra', 
-    english: 'tomorrow',
+  {
+    word: 'sutra',
+    translation: 'tomorrow',
     pronunciation: 'SUU-trah',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'time',
     context: 'Time expressions',
     examples: ['Vidimo se sutra.', 'Sutra je petak.']
   },
 
   // Family
-  { 
-    bosnian: 'majka', 
-    english: 'mother',
+  {
+    word: 'majka',
+    translation: 'mother',
     pronunciation: 'MAY-kah',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'family',
     context: 'Family members',
     examples: ['Moja majka.', 'Gdje je majka?']
   },
-  { 
-    bosnian: 'otac', 
-    english: 'father',
+  {
+    word: 'otac',
+    translation: 'father',
     pronunciation: 'OH-tats',
-    difficulty: 'easy',
+    difficulty: 'beginner',
     category: 'family',
     context: 'Family members',
     examples: ['Moj otac.', 'Otac radi.']

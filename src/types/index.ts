@@ -368,4 +368,22 @@ export interface Exercise {
   }>;
   correctAnswer?: string;
   context?: string;
+}
+
+export interface PronunciationGuideType {
+  word: string;
+  description: string;
+  audioUrl?: string;
+  examples?: string[];
+}
+
+export interface CosmicWord {
+  word: string;
+  translation: string;
+  context: string;
+  examples: string[];
+  audioUrl?: string;
+  category?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  pronunciation: string;
 } 

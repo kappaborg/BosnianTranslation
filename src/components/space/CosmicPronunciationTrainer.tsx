@@ -1,20 +1,28 @@
-import { cosmicWords } from '@/data/cosmicWords';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { CosmicWord } from '@/types';
 import { setupSpeechSynthesis } from '@/utils/pronunciation';
 import {
-    ArrowPathIcon,
-    BookmarkIcon,
-    MicrophoneIcon,
-    PlayIcon,
-    SparklesIcon,
-    StopIcon
+  ArrowPathIcon,
+  BookmarkIcon,
+  MicrophoneIcon,
+  PlayIcon,
+  SparklesIcon,
+  StopIcon
 } from '@heroicons/react/24/outline';
 import { motion, useAnimation } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-export default function CosmicPronunciationTrainer() {
+interface Props {
+  words: CosmicWord[];
+  onComplete: (recordings: { word: string; audioBlob: Blob }[]) => void;
+}
+
+export default function CosmicPronunciationTrainer({ words, onComplete }: Props) {
   const { isRecording, audioURL, startRecording, stopRecording, clearRecording } = useAudioRecorder();
-  const [currentWord, setCurrentWord] = useState(cosmicWords[0]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [recordings, setRecordings] = useState<{ word: string; audioBlob: Blob }[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentWord, setCurrentWord] = useState<CosmicWord>(words[currentIndex]);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -22,7 +30,7 @@ export default function CosmicPronunciationTrainer() {
   const [showExamples, setShowExamples] = useState(false);
   const controls = useAnimation();
 
-  const categories = ['all', ...new Set(cosmicWords.map(word => word.category))];
+  const categories = ['all', ...new Set(words.map(word => word.word))];
 
   const generateStarfield = () => {
     const newParticles = Array.from({ length: 30 }, (_, i) => ({
@@ -38,10 +46,25 @@ export default function CosmicPronunciationTrainer() {
     generateStarfield();
   }, []);
 
+  useEffect(() => {
+    if (audioURL) {
+      fetch(audioURL)
+        .then(response => response.blob())
+        .then(blob => {
+          setRecordings(prev => [...prev, { word: currentWord.word, audioBlob: blob }]);
+          if (currentIndex < words.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+          } else {
+            onComplete(recordings);
+          }
+        });
+    }
+  }, [audioURL, currentWord.word, currentIndex, words.length, onComplete, recordings]);
+
   const playCorrectPronunciation = async () => {
     try {
       window.speechSynthesis.cancel();
-      const utterance = setupSpeechSynthesis(currentWord.bosnian, 'bs');
+      const utterance = setupSpeechSynthesis(currentWord.word, 'bs');
       window.speechSynthesis.speak(utterance);
 
       // Animate stars
@@ -55,7 +78,7 @@ export default function CosmicPronunciationTrainer() {
   };
 
   const handleSuccess = () => {
-    setScore(prev => prev + (currentWord.difficulty === 'easy' ? 10 : 20));
+    setScore(prev => prev + (currentWord.word.length > 5 ? 10 : 20));
     setStreak(prev => prev + 1);
     generateStarfield();
     
@@ -69,8 +92,8 @@ export default function CosmicPronunciationTrainer() {
 
   const selectNewWord = () => {
     const filteredWords = selectedCategory === 'all' 
-      ? cosmicWords 
-      : cosmicWords.filter(word => word.category === selectedCategory);
+      ? words 
+      : words.filter(word => word.word === selectedCategory);
     
     const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
     setCurrentWord(randomWord);
@@ -82,6 +105,20 @@ export default function CosmicPronunciationTrainer() {
     if (streak >= 10) return 'text-purple-400';
     if (streak >= 5) return 'text-blue-400';
     return 'text-yellow-400';
+  };
+
+  const handlePlayOriginal = async () => {
+    if (currentWord.audioUrl && !isPlaying) {
+      setIsPlaying(true);
+      const audio = new Audio(currentWord.audioUrl);
+      audio.onended = () => setIsPlaying(false);
+      try {
+        await audio.play();
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        setIsPlaying(false);
+      }
+    }
   };
 
   return (
@@ -155,7 +192,7 @@ export default function CosmicPronunciationTrainer() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-center space-x-2">
-            <h2 className="text-3xl font-bold text-white">{currentWord.bosnian}</h2>
+            <h2 className="text-3xl font-bold text-white">{currentWord.word}</h2>
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -165,8 +202,8 @@ export default function CosmicPronunciationTrainer() {
               <BookmarkIcon className="w-5 h-5" />
             </motion.button>
           </div>
-          <p className="text-gray-400">{currentWord.english}</p>
-          <p className="text-sm text-indigo-400">{currentWord.pronunciation}</p>
+          <p className="text-gray-400">{currentWord.translation}</p>
+          <p className="text-sm text-indigo-400">{currentWord.word}</p>
           
           {showExamples && (
             <motion.div

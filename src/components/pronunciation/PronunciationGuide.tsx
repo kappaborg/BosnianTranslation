@@ -1,14 +1,15 @@
 'use client';
 
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { PronunciationGuide as PronunciationGuideType } from '@/types';
-import { MicrophoneIcon, PlayIcon, StopIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { PronunciationGuideType } from '@/types';
+import { MicrophoneIcon, PauseIcon, PlayIcon, StopIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Button } from '../ui/button';
 
 interface Props {
   guide: PronunciationGuideType;
-  onSaveRecording?: (audioBlob: Blob) => Promise<void>;
+  onSaveRecording: (audioBlob: Blob) => void;
 }
 
 export default function PronunciationGuide({ guide, onSaveRecording }: Props) {
@@ -16,111 +17,140 @@ export default function PronunciationGuide({ guide, onSaveRecording }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement] = useState(new Audio());
 
-  const playOriginalAudio = async () => {
-    try {
-      audioElement.src = guide.audioUrl;
-      audioElement.onplay = () => setIsPlaying(true);
-      audioElement.onended = () => setIsPlaying(false);
-      await audioElement.play();
-    } catch (error) {
-      console.error('Error playing audio:', error);
+  useEffect(() => {
+    if (audioURL) {
+      audioElement.src = audioURL;
+    }
+    return () => {
+      audioElement.pause();
+      if (audioElement.src) {
+        URL.revokeObjectURL(audioElement.src);
+      }
+    };
+  }, [audioURL, audioElement]);
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      audioElement.pause();
+      setIsPlaying(false);
+    } else {
+      audioElement.play().catch(console.error);
+      setIsPlaying(true);
     }
   };
 
+  audioElement.onended = () => {
+    setIsPlaying(false);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 soft:bg-soft-50 rounded-lg shadow-md p-6 mb-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm space-y-4">
+      <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white soft:text-gray-800">
-            {guide.word}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 soft:text-gray-600 font-mono">
-            /{guide.ipa}/
-          </p>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={playOriginalAudio}
-            disabled={isPlaying}
-            className="p-2 rounded-full bg-indigo-100 text-indigo-600 hover:bg-indigo-200
-              dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/30
-              soft:bg-indigo-50 soft:text-indigo-600 soft:hover:bg-indigo-100
-              disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PlayIcon className="w-5 h-5" />
-          </motion.button>
-
-          {!isRecording && !audioURL && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={startRecording}
-              className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200
-                dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30
-                soft:bg-red-50 soft:text-red-600 soft:hover:bg-red-100"
-            >
-              <MicrophoneIcon className="w-5 h-5" />
-            </motion.button>
-          )}
-
-          {isRecording && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={stopRecording}
-              className="p-2 rounded-full bg-red-600 text-white hover:bg-red-700
-                dark:bg-red-500 dark:hover:bg-red-600
-                soft:bg-red-500 soft:hover:bg-red-600"
-            >
-              <StopIcon className="w-5 h-5" />
-            </motion.button>
-          )}
-
-          {audioURL && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={clearRecording}
-              className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200
-                dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700
-                soft:bg-gray-50 soft:text-gray-600 soft:hover:bg-gray-100"
-            >
-              <TrashIcon className="w-5 h-5" />
-            </motion.button>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{guide.word}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{guide.description}</p>
+          {guide.examples && guide.examples.length > 0 && (
+            <div className="mt-2">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Examples:</p>
+              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
+                {guide.examples.map((example, index) => (
+                  <li key={index}>{example}</li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400 soft:text-red-600 mb-4">
-          {error}
-        </p>
+        <Alert variant="destructive" className="mt-2">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-gray-700 dark:text-gray-300 soft:text-gray-700">
-          Examples:
-        </h4>
-        <ul className="space-y-1">
-          {guide.examples.map((example, index) => (
-            <li
-              key={index}
-              className="text-sm text-gray-600 dark:text-gray-400 soft:text-gray-600"
+      <div className="flex gap-2 mt-4">
+        {guide.audioUrl && (
+          <Button
+            onClick={() => {
+              audioElement.src = guide.audioUrl || '';
+              audioElement.play().catch(console.error);
+            }}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <PlayIcon className="h-5 w-5" />
+            Play Original
+          </Button>
+        )}
+
+        {!isRecording && !audioURL && (
+          <Button
+            onClick={startRecording}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <MicrophoneIcon className="h-5 w-5" />
+            Start Recording
+          </Button>
+        )}
+
+        {isRecording && (
+          <Button
+            onClick={stopRecording}
+            variant="destructive"
+            className="flex items-center gap-2"
+          >
+            <StopIcon className="h-5 w-5" />
+            Stop Recording
+          </Button>
+        )}
+
+        {audioURL && (
+          <>
+            <Button
+              onClick={handlePlayPause}
+              variant="outline"
+              className="flex items-center gap-2"
             >
-              {example}
-            </li>
-          ))}
-        </ul>
-      </div>
+              {isPlaying ? (
+                <>
+                  <PauseIcon className="h-5 w-5" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <PlayIcon className="h-5 w-5" />
+                  Play
+                </>
+              )}
+            </Button>
 
-      {audioURL && (
-        <div className="mt-4">
-          <audio src={audioURL} controls className="w-full" />
-        </div>
-      )}
+            <Button
+              onClick={clearRecording}
+              variant="ghost"
+              className="flex items-center gap-2"
+            >
+              <XCircleIcon className="h-5 w-5" />
+              Clear
+            </Button>
+
+            <Button
+              onClick={() => {
+                if (audioURL) {
+                  fetch(audioURL)
+                    .then(response => response.blob())
+                    .then(blob => onSaveRecording(blob))
+                    .catch(error => console.error('Error saving recording:', error));
+                }
+              }}
+              variant="default"
+              className="ml-auto"
+            >
+              Save Recording
+            </Button>
+          </>
+        )}
+      </div>
     </div>
   );
 } 

@@ -157,43 +157,31 @@ export const getBosnianVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesis
   ) || null;
 };
 
-export const setupSpeechSynthesis = (text: string | undefined, lang: string = 'bs'): SpeechSynthesisUtterance => {
-  const utterance = new SpeechSynthesisUtterance();
+export function setupSpeechSynthesis(text: string, lang: string = 'bs'): SpeechSynthesisUtterance {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = 0.8; // Slightly slower for better clarity
+  utterance.pitch = 1;
   
-  if (!text?.trim()) {
-    utterance.text = '';
-    return utterance;
-  }
-
-  // Process text based on language
-  if (lang === 'bs') {
-    utterance.text = preprocessBosnianText(text);
-    utterance.lang = 'hr-HR'; // Use Croatian as base for Bosnian
-    
-    // Wait for voices to load
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.addEventListener('voiceschanged', () => {
-        const voices = window.speechSynthesis.getVoices();
-        const bosnianVoice = getBosnianVoice(voices);
-        if (bosnianVoice) utterance.voice = bosnianVoice;
-      }, { once: true });
-    } else {
-      const voices = window.speechSynthesis.getVoices();
-      const bosnianVoice = getBosnianVoice(voices);
-      if (bosnianVoice) utterance.voice = bosnianVoice;
-    }
-
-    // Adjust speech parameters for better Bosnian pronunciation
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-  } else {
-    utterance.text = text;
-    utterance.lang = lang;
+  // Find a voice that matches our language if available
+  const voices = window.speechSynthesis.getVoices();
+  const voice = voices.find(v => v.lang.startsWith(lang)) || voices[0];
+  if (voice) {
+    utterance.voice = voice;
   }
 
   return utterance;
-};
+}
+
+export function isSpeechSynthesisSupported(): boolean {
+  return 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+
+export function stopSpeechSynthesis(): void {
+  if (isSpeechSynthesisSupported()) {
+    window.speechSynthesis.cancel();
+  }
+}
 
 export const improveBosnianPronunciation = (text: string): string => {
   // Add stress marks for proper emphasis
