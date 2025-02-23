@@ -36,21 +36,31 @@ export default function CultureArticle() {
               id: 'vocab-kahva',
               bosnian: 'kahva',
               english: 'coffee',
+              chinese: '咖啡',
+              pronunciation: 'KAH-vah',
               context: 'Traditional Bosnian coffee',
               category: 'beverages',
               difficulty: 'beginner',
               usage: ['Želite li kahvu?', 'Kahva je spremna.'],
-              examples: ['Bosanska kahva je jaka.', 'Kahva se služi u fildžanu.']
+              examples: ['Bosanska kahva je jaka.', 'Kahva se služi u fildžanu.'],
+              audioUrl: '/audio/kahva.mp3',
+              reviewCount: 0,
+              successRate: 0
             },
             {
               id: 'vocab-dzezva',
               bosnian: 'džezva',
               english: 'coffee pot',
+              chinese: '咖啡壶',
+              pronunciation: 'JEZZ-vah',
               context: 'Traditional copper coffee pot',
               category: 'utensils',
               difficulty: 'beginner',
               usage: ['Kahva se kuha u džezvi.'],
-              examples: ['Džezva je napravljena od bakra.', 'Stavi kahvu u džezvu.']
+              examples: ['Džezva je napravljena od bakra.', 'Stavi kahvu u džezvu.'],
+              audioUrl: '/audio/dzezva.mp3',
+              reviewCount: 0,
+              successRate: 0
             }
           ]
         };
