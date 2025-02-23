@@ -255,12 +255,17 @@ export interface VocabularyWord {
   bosnian: string;
   english: string;
   chinese?: string;
-  context: string;
-  usage?: string[];
+  pronunciation: string;  // IPA or simplified pronunciation guide
+  audioUrl?: string;     // URL to pre-recorded pronunciation audio
+  context?: string;      // Usage context or additional information
+  examples?: string[];   // Example sentences using the word
+  category: string;      // Word category (e.g., Greetings, Food, etc.)
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: string;
-  audioUrl?: string;
-  examples: string[];
+  usage?: string[];     // Additional usage examples or notes
+  lastReviewed?: string; // Timestamp of last review
+  reviewCount?: number;  // Number of times reviewed
+  nextReview?: string;   // Timestamp for next scheduled review
+  successRate?: number;  // Success rate in reviews (0-1)
 }
 
 export interface PracticeDialogue {

@@ -6,8 +6,25 @@ import { motion } from 'framer-motion';
 
 export default function Home() {
   const handleTranslate = async (text: string, from: string, to: string) => {
-    // Implement your translation logic here
-    return `Translated: ${text}`;
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, from, to }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Translation request failed');
+      }
+
+      const data = await response.json();
+      return data.translatedText;
+    } catch (error) {
+      console.error('Translation error:', error);
+      throw error;
+    }
   };
 
   return (
@@ -39,21 +56,22 @@ export default function Home() {
           </motion.p>
         </div>
 
-        {/* Progress Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <GalacticProgress progress={42} total={100} label="Words Mastered" />
-          <GalacticProgress progress={7} total={30} label="Daily Streak" />
-          <GalacticProgress progress={3} total={10} label="Lessons Completed" />
-        </div>
-
-        {/* Translator Section */}
+        {/* Translator Section - Moved up for immediate access */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
+          className="w-full max-w-4xl mx-auto"
         >
           <CosmicTranslator onTranslate={handleTranslate} />
         </motion.div>
+
+        {/* Progress Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <GalacticProgress progress={42} total={100} label="Words Mastered" />
+          <GalacticProgress progress={7} total={30} label="Daily Streak" />
+          <GalacticProgress progress={3} total={10} label="Lessons Completed" />
+        </div>
 
         {/* Features Grid */}
         <motion.div

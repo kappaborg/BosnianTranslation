@@ -2,18 +2,9 @@
 
 import { useCallback, useState } from 'react';
 
-interface AudioRecorderState {
-  isRecording: boolean;
-  audioURL: string | null;
-  error: string | null;
-}
-
 export const useAudioRecorder = () => {
-  const [state, setState] = useState<AudioRecorderState>({
-    isRecording: false,
-    audioURL: null,
-    error: null,
-  });
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState<string | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
@@ -21,7 +12,9 @@ export const useAudioRecorder = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
-      
+      setMediaRecorder(recorder);
+      setAudioChunks([]);
+
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           setAudioChunks((chunks) => [...chunks, event.data]);
@@ -30,47 +23,38 @@ export const useAudioRecorder = () => {
 
       recorder.onstop = () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setState((prev) => ({ ...prev, audioURL: audioUrl }));
+        const url = URL.createObjectURL(audioBlob);
+        setAudioURL(url);
       };
 
       recorder.start();
-      setMediaRecorder(recorder);
-      setState((prev) => ({ ...prev, isRecording: true, error: null }));
+      setIsRecording(true);
     } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        error: 'Error accessing microphone. Please check permissions.',
-      }));
+      console.error('Error starting recording:', error);
     }
-  }, [audioChunks]);
+  }, []);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
-      setState((prev) => ({ ...prev, isRecording: false }));
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
     }
   }, [mediaRecorder]);
 
   const clearRecording = useCallback(() => {
-    if (state.audioURL) {
-      URL.revokeObjectURL(state.audioURL);
+    if (audioURL) {
+      URL.revokeObjectURL(audioURL);
     }
+    setAudioURL(null);
     setAudioChunks([]);
-    setState({
-      isRecording: false,
-      audioURL: null,
-      error: null,
-    });
-  }, [state.audioURL]);
+  }, [audioURL]);
 
   return {
-    isRecording: state.isRecording,
-    audioURL: state.audioURL,
-    error: state.error,
+    isRecording,
+    audioURL,
     startRecording,
     stopRecording,
-    clearRecording,
+    clearRecording
   };
 }; 
