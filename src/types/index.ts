@@ -19,6 +19,7 @@ export interface UserProgress {
   quizzesPassed: number;
   achievements: Achievement[];
   learningPath: LearningPath;
+  quizScores: QuizScore[];
 }
 
 // Pronunciation Types

@@ -1,11 +1,11 @@
 'use client';
 
-import { Achievement, QuizScore, User } from '@/types';
+import { Achievement, User } from '@/types';
 import {
-  AcademicCapIcon,
-  ChartBarIcon,
-  FireIcon,
-  TrophyIcon,
+    AcademicCapIcon,
+    ChartBarIcon,
+    FireIcon,
+    TrophyIcon,
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 
@@ -21,11 +21,14 @@ export default function ProgressDashboard({ user }: Props) {
   };
 
   const calculateAverageScore = () => {
-    if (user.progress.quizScores.length === 0) return 0;
-    const total = user.progress.quizScores.reduce((acc, score) => {
+    const quizScores = user.progress.quizScores || [];
+    if (quizScores.length === 0) return 0;
+    
+    const total = quizScores.reduce((acc, score) => {
       return acc + (score.score / score.totalQuestions) * 100;
     }, 0);
-    return Math.round(total / user.progress.quizScores.length);
+    
+    return Math.round(total / quizScores.length);
   };
 
   const getLatestAchievements = (count: number): Achievement[] => {
