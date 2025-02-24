@@ -16,9 +16,6 @@ A sleek and powerful web app built with TypeScript that not only provides instan
 
 1. **Clone the Repository:**
 
-   ```bash
-   git clone https://github.com/yourusername/bosnian-english-translator.git
-   cd bosnian-english-translator
 
 
    This project is licensed under the MIT License.
