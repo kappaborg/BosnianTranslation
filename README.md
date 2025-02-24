@@ -56,6 +56,7 @@ This project is licensed under the **MIT License**.
 
 📌 **Website:** https://bosnian-translation.vercel.app/  
 📌 **GitHub:** https://github.com/kappaborg
+
 📌 **Instagram:** https://www.instagram.com/kappasutra/
 
 ---
