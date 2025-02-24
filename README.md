@@ -6,7 +6,7 @@ A sleek and powerful web app built with TypeScript that not only provides instan
 
 ## Features
 
-- **Instant Translation:** Convert text quickly and accurately between Bosnian and English.
+![Untitled](https://github.com/user-attachments/assets/ef0fa7a8-82ab-4a38-b5bc-fe37e2ddfbf4) - **Instant Translation:** Convert text quickly and accurately between Bosnian and English.
 - **Interactive Practice:** Strengthen your skills with engaging exercises.
 - **Language Learning:** Access curated lessons and resources for mastering Bosnian.
 - **Cultural Insights:** Explore Bosnian history, traditions, and cultural highlights.
