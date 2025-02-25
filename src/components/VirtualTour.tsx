@@ -7,7 +7,14 @@ import { Button } from './ui/button';
 
 const Map = dynamic(
   () => import('./Map'),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-gray-900/50">
+        <div className="w-12 h-12 border-4 border-t-blue-500 border-b-blue-500 border-l-transparent border-r-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 );
 
 const DEFAULT_IMAGE = '/images/tours/placeholder.jpg';
@@ -16,9 +23,16 @@ export default function VirtualTour() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
+  const [mapError, setMapError] = useState<Error | null>(null);
 
   const handleImageError = (locationId: string) => {
     setImageError(prev => ({ ...prev, [locationId]: true }));
+  };
+
+  const handleMapError = (error: Error) => {
+    console.error('Map error:', error);
+    setMapError(error);
+    setShowMap(false);
   };
 
   return (
@@ -30,10 +44,17 @@ export default function VirtualTour() {
         <Button
           onClick={() => setShowMap(!showMap)}
           className="bg-gradient-to-r from-purple-600 to-blue-500 text-white"
+          disabled={!!mapError}
         >
           {showMap ? 'Show Locations' : 'Show Map'}
         </Button>
       </div>
+
+      {mapError && (
+        <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
+          <p>Failed to load map. Please try again later.</p>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {showMap ? (
@@ -68,6 +89,7 @@ export default function VirtualTour() {
                     fill
                     className="object-cover"
                     onError={() => handleImageError(location.id)}
+                    priority={true}
                   />
                 </div>
                 <div className="p-4">
@@ -101,6 +123,7 @@ export default function VirtualTour() {
                 fill
                 className="object-cover"
                 onError={() => handleImageError(selectedLocation.id)}
+                priority={true}
               />
             </div>
             <div className="p-6">

@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Location } from '../data/tourLocations';
 
@@ -18,6 +19,33 @@ interface MapProps {
 }
 
 export default function Map({ locations }: MapProps) {
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      setError(new Error('Map cannot be rendered on the server'));
+      return;
+    }
+
+    // Check if Leaflet is available
+    if (!L) {
+      setError(new Error('Leaflet library failed to load'));
+      return;
+    }
+  }, []);
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-red-500/10">
+        <div className="text-center text-red-500">
+          <p>Failed to load map</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MapContainer
       center={[43.8563, 18.4131]}
