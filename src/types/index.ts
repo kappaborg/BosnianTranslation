@@ -93,10 +93,48 @@ export interface CulturalContent {
   id: string;
   title: string;
   type: 'article' | 'story' | 'song' | 'tradition';
-  content: string;
+  content: string | {
+    overview: string;
+    instruments?: {
+      title: string;
+      items: Array<{
+        name: string;
+        description: string;
+        imageUrl: string;
+      }>;
+    };
+    songs?: {
+      title: string;
+      items: Array<{
+        title: string;
+        description: string;
+        youtubeId: string;
+      }>;
+    };
+    artists?: {
+      title: string;
+      items: Array<{
+        name: string;
+        description: string;
+        imageUrl: string;
+      }>;
+    };
+  };
   mediaUrls: string[];
   tags: string[];
   relatedVocabulary?: VocabularyWord[];
+  musicPlaylists?: {
+    spotify?: {
+      playlistId: string;
+      title: string;
+      description: string;
+    }[];
+    youtube?: {
+      playlistId: string;
+      title: string;
+      description: string;
+    }[];
+  };
 }
 
 // Conversation Types

@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { BugAntIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Analytics } from "@vercel/analytics/react";
 import { motion } from "framer-motion";
+import 'leaflet/dist/leaflet.css';
 import { Inter } from "next/font/google";
 import { useState } from "react";
 import "./globals.css";
@@ -25,6 +26,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head />
       <body className={`${inter.className} min-h-screen bg-black text-white`}>
         <ThemeProvider>
           <SpaceBackground />

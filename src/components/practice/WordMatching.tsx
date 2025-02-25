@@ -11,54 +11,146 @@ interface MatchingWord {
   english: string;
   pronunciation: string;
   matched: boolean;
+  category: string;
 }
 
 const wordPairs: Omit<MatchingWord, 'matched'>[] = [
+  // Greetings
   {
-    id: '1',
-    bosnian: 'kuća',
-    english: 'house',
-    pronunciation: 'KOO-cha'
+    id: 'g1',
+    bosnian: 'zdravo',
+    english: 'hello',
+    pronunciation: 'ZDRAH-voh',
+    category: 'greetings'
   },
   {
-    id: '2',
-    bosnian: 'mačka',
-    english: 'cat',
-    pronunciation: 'MAHCH-kah'
+    id: 'g2',
+    bosnian: 'doviđenja',
+    english: 'goodbye',
+    pronunciation: 'doh-vee-JEN-yah',
+    category: 'greetings'
+  },
+  // Common Phrases
+  {
+    id: 'p1',
+    bosnian: 'kako si',
+    english: 'how are you',
+    pronunciation: 'KAH-koh see',
+    category: 'phrases'
   },
   {
-    id: '3',
-    bosnian: 'pas',
-    english: 'dog',
-    pronunciation: 'pahs'
+    id: 'p2',
+    bosnian: 'hvala',
+    english: 'thank you',
+    pronunciation: 'HVAH-lah',
+    category: 'phrases'
+  },
+  // Questions
+  {
+    id: 'q1',
+    bosnian: 'gdje',
+    english: 'where',
+    pronunciation: 'g-dyeh',
+    category: 'questions'
   },
   {
-    id: '4',
-    bosnian: 'drvo',
-    english: 'tree',
-    pronunciation: 'DR-voh'
+    id: 'q2',
+    bosnian: 'kada',
+    english: 'when',
+    pronunciation: 'KAH-dah',
+    category: 'questions'
+  },
+  // Food and Drink
+  {
+    id: 'f1',
+    bosnian: 'hljeb',
+    english: 'bread',
+    pronunciation: 'hlyeb',
+    category: 'food'
   },
   {
-    id: '5',
-    bosnian: 'knjiga',
-    english: 'book',
-    pronunciation: 'KNYEE-gah'
+    id: 'f2',
+    bosnian: 'voda',
+    english: 'water',
+    pronunciation: 'VOH-dah',
+    category: 'food'
+  },
+  // Weather
+  {
+    id: 'w1',
+    bosnian: 'sunce',
+    english: 'sun',
+    pronunciation: 'SOON-tseh',
+    category: 'weather'
+  },
+  {
+    id: 'w2',
+    bosnian: 'kiša',
+    english: 'rain',
+    pronunciation: 'KEE-shah',
+    category: 'weather'
+  },
+  // Time
+  {
+    id: 't1',
+    bosnian: 'danas',
+    english: 'today',
+    pronunciation: 'DAH-nahs',
+    category: 'time'
+  },
+  {
+    id: 't2',
+    bosnian: 'sutra',
+    english: 'tomorrow',
+    pronunciation: 'SOO-trah',
+    category: 'time'
+  },
+  // Family
+  {
+    id: 'fm1',
+    bosnian: 'majka',
+    english: 'mother',
+    pronunciation: 'MY-kah',
+    category: 'family'
+  },
+  {
+    id: 'fm2',
+    bosnian: 'otac',
+    english: 'father',
+    pronunciation: 'OH-tahts',
+    category: 'family'
   }
 ];
 
-export default function WordMatching() {
+interface Props {
+  category: string;
+  onScoreUpdate: (score: number) => void;
+}
+
+export default function WordMatching({ category, onScoreUpdate }: Props) {
   const [words, setWords] = useState<MatchingWord[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(category);
+
+  useEffect(() => {
+    setSelectedCategory(category);
+  }, [category]);
 
   useEffect(() => {
     // Initialize game with shuffled words
-    const shuffledWords = [...wordPairs].map(word => ({ ...word, matched: false }));
+    const filteredWords = wordPairs.filter(word => 
+      selectedCategory === 'all' || word.category === selectedCategory
+    );
+    const shuffledWords = [...filteredWords].map(word => ({ ...word, matched: false }));
     setWords(shuffledWords);
-  }, []);
+    setScore(0);
+    setAttempts(0);
+    onScoreUpdate(0);
+  }, [selectedCategory, onScoreUpdate]);
 
   const handleWordClick = (wordId: string) => {
     const word = words.find(w => w.id === wordId);
@@ -81,7 +173,9 @@ export default function WordMatching() {
               : w
           );
           setWords(updatedWords);
-          setScore(score + 1);
+          const newScore = score + 1;
+          setScore(newScore);
+          onScoreUpdate(newScore);
 
           // Check if game is complete
           if (updatedWords.every(w => w.matched)) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 interface CulturalContent {
   id: string;
@@ -123,49 +124,54 @@ export default function CulturePage() {
           transition={{ delay: 0.6 }}
         >
           {culturalContent.map((content, index) => (
-            <motion.div
+            <Link
               key={content.id}
-              className="relative group cursor-pointer"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 * index }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              href={`/culture/${content.id === 'music' ? 'traditional-music' : 
+                     content.id === 'literature' ? 'bosnian-war-literature' : content.id}`}
             >
-              <div className={`
-                bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-white/10
-                hover:border-white/20 transition-all duration-300
-                relative overflow-hidden group-hover:shadow-lg
-              `}>
-                {/* Background Gradient */}
+              <motion.div
+                className="relative group cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 * index }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className={`
-                  absolute inset-0 bg-gradient-to-br ${content.color}
-                  opacity-10 group-hover:opacity-20 transition-opacity duration-300
-                `} />
+                  bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-white/10
+                  hover:border-white/20 transition-all duration-300
+                  relative overflow-hidden group-hover:shadow-lg
+                `}>
+                  {/* Background Gradient */}
+                  <div className={`
+                    absolute inset-0 bg-gradient-to-br ${content.color}
+                    opacity-10 group-hover:opacity-20 transition-opacity duration-300
+                  `} />
 
-                {/* Content */}
-                <div className="relative z-10">
-                  <span className="text-3xl mb-4 block">{content.icon}</span>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {content.title}
-                  </h3>
-                  <p className="text-gray-300 text-sm mb-4">
-                    {content.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">
-                      {content.category}
-                    </span>
-                    <span className="text-white/70 text-sm">
-                      Learn More →
-                    </span>
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <span className="text-3xl mb-4 block">{content.icon}</span>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {content.title}
+                    </h3>
+                    <p className="text-gray-300 text-sm mb-4">
+                      {content.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">
+                        {content.category}
+                      </span>
+                      <span className="text-white/70 text-sm">
+                        Learn More →
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Hover Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform" />
-              </div>
-            </motion.div>
+                  {/* Hover Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform" />
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </motion.div>
 

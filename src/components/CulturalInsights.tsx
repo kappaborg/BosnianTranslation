@@ -5,12 +5,14 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 interface CulturalInsightsProps {
-  content: CulturalContent;
+  content?: CulturalContent;
+  vocabulary?: VocabularyWord[];
   onVocabularyLearn?: (word: VocabularyWord) => void;
 }
 
 const CulturalInsights: React.FC<CulturalInsightsProps> = ({
   content,
+  vocabulary,
   onVocabularyLearn,
 }) => {
   const [showVocabulary, setShowVocabulary] = useState(false);
@@ -29,6 +31,53 @@ const CulturalInsights: React.FC<CulturalInsightsProps> = ({
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
   };
+
+  // If vocabulary prop is provided, render only the vocabulary section
+  if (vocabulary) {
+    return (
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid gap-4"
+      >
+        {vocabulary.map((word, index) => (
+          <motion.div
+            key={index}
+            variants={item}
+            className="bg-white/5 backdrop-blur-lg p-4 rounded-lg"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="text-lg font-semibold text-white">
+                  {word.bosnian}
+                </h4>
+                <p className="text-gray-300">
+                  {word.english}
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Context: {word.context}
+                </p>
+              </div>
+              {onVocabularyLearn && (
+                <button
+                  onClick={() => onVocabularyLearn(word)}
+                  className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Learn
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+    );
+  }
+
+  // If content prop is provided, render the full cultural insights
+  if (!content) {
+    return null;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">

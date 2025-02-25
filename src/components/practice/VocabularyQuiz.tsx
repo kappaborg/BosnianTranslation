@@ -12,7 +12,13 @@ interface QuizQuestion {
   options: string[];
 }
 
-export default function VocabularyQuiz() {
+interface Props {
+  category: string;
+  onScoreUpdate: (score: number) => void;
+  onQuestionUpdate: (questionNumber: number) => void;
+}
+
+export default function VocabularyQuiz({ category, onScoreUpdate, onQuestionUpdate }: Props) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -96,165 +102,170 @@ export default function VocabularyQuiz() {
   if (!currentQuestion) return null;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-        {/* Category Selection */}
-        <div className="mb-8">
-          <label className="block text-gray-300 mb-2">Select Category:</label>
-          <div className="flex flex-wrap gap-2">
-            {categories.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg capitalize ${
-                  selectedCategory === category
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Progress and Score */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-gray-300">
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </div>
-          <div className="text-gray-300">
-            Score: {score}/{questions.length}
-          </div>
-        </div>
-
-        {/* Question */}
-        <div className="text-center mb-8">
-          <motion.div
-            key={currentQuestion.word.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-4"
-          >
-            <h2 className="text-3xl font-bold text-white mb-2">
-              {currentQuestion.word.bosnian}
-            </h2>
-            <div className="flex flex-col items-center gap-4">
-              <button
-                onClick={playPronunciation}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
-              >
-                <SpeakerWaveIcon className="w-5 h-5" />
-                Play Pronunciation
-              </button>
-              {showPronunciation && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-2"
+    <div className="space-y-8">
+      <h3 className="text-2xl font-semibold text-white text-center">
+        Vocabulary Quiz - {category}
+      </h3>
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 border border-white/10">
+          {/* Category Selection */}
+          <div className="mb-8">
+            <label className="block text-gray-300 mb-2">Select Category:</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-lg capitalize ${
+                    selectedCategory === category
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
                 >
-                  <p className="text-gray-400 italic">
-                    [{currentQuestion.word.pronunciation}]
-                  </p>
-                  {currentQuestion.word.context && (
-                    <p className="text-gray-400 text-sm">
-                      {currentQuestion.word.context}
-                    </p>
-                  )}
-                </motion.div>
-              )}
+                  {category}
+                </button>
+              ))}
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Answer Options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {currentQuestion.options.map((option) => (
-            <motion.button
-              key={option}
-              onClick={() => handleAnswerSelect(option)}
-              disabled={selectedAnswer !== null}
-              className={`
-                p-4 rounded-lg text-lg font-medium transition-all
-                ${
-                  selectedAnswer === null
-                    ? 'bg-white/10 hover:bg-white/20 text-white'
-                    : selectedAnswer === option
-                    ? isCorrect
-                      ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
-                      : 'bg-red-500/20 text-red-300 border-2 border-red-500'
-                    : option === currentQuestion.word.english && isCorrect === false
-                    ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
-                    : 'bg-white/5 text-gray-400'
-                }
-              `}
-              whileHover={selectedAnswer === null ? { scale: 1.02 } : {}}
-              whileTap={selectedAnswer === null ? { scale: 0.98 } : {}}
-            >
-              {option}
-            </motion.button>
-          ))}
-        </div>
+          {/* Progress and Score */}
+          <div className="flex justify-between items-center mb-8">
+            <div className="text-gray-300">
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </div>
+            <div className="text-gray-300">
+              Score: {score}/{questions.length}
+            </div>
+          </div>
 
-        {/* Feedback and Controls */}
-        <AnimatePresence>
-          {selectedAnswer && (
+          {/* Question */}
+          <div className="text-center mb-8">
             <motion.div
+              key={currentQuestion.word.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center space-y-4"
+              className="space-y-4"
             >
-              <p
-                className={`text-xl font-bold ${
-                  isCorrect ? 'text-green-400' : 'text-red-400'
-                }`}
-              >
-                {isCorrect ? 'Correct! 🎉' : 'Incorrect 😢'}
-              </p>
-              <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                {currentQuestion.word.bosnian}
+              </h2>
+              <div className="flex flex-col items-center gap-4">
                 <button
-                  onClick={() => setShowPronunciation(!showPronunciation)}
-                  className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                  onClick={playPronunciation}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
                 >
-                  {showPronunciation ? 'Hide' : 'Show'} Pronunciation Guide
+                  <SpeakerWaveIcon className="w-5 h-5" />
+                  Play Pronunciation
                 </button>
-                {currentQuestion.word.examples && showPronunciation && (
+                {showPronunciation && (
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-gray-400 text-sm space-y-1"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-2"
                   >
-                    <p className="font-medium">Examples:</p>
-                    {currentQuestion.word.examples.map((example, index) => (
-                      <p key={index}>{example}</p>
-                    ))}
+                    <p className="text-gray-400 italic">
+                      [{currentQuestion.word.pronunciation}]
+                    </p>
+                    {currentQuestion.word.context && (
+                      <p className="text-gray-400 text-sm">
+                        {currentQuestion.word.context}
+                      </p>
+                    )}
                   </motion.div>
                 )}
               </div>
-              {currentQuestionIndex < questions.length - 1 ? (
-                <motion.button
-                  onClick={handleNextQuestion}
-                  className="block w-full py-3 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Next Question
-                </motion.button>
-              ) : (
-                <motion.button
-                  onClick={handleRestart}
-                  className="block w-full py-3 px-6 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Try Again
-                </motion.button>
-              )}
             </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+
+          {/* Answer Options */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {currentQuestion.options.map((option) => (
+              <motion.button
+                key={option}
+                onClick={() => handleAnswerSelect(option)}
+                disabled={selectedAnswer !== null}
+                className={`
+                  p-4 rounded-lg text-lg font-medium transition-all
+                  ${
+                    selectedAnswer === null
+                      ? 'bg-white/10 hover:bg-white/20 text-white'
+                      : selectedAnswer === option
+                      ? isCorrect
+                        ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
+                        : 'bg-red-500/20 text-red-300 border-2 border-red-500'
+                      : option === currentQuestion.word.english && isCorrect === false
+                      ? 'bg-green-500/20 text-green-300 border-2 border-green-500'
+                      : 'bg-white/5 text-gray-400'
+                  }
+                `}
+                whileHover={selectedAnswer === null ? { scale: 1.02 } : {}}
+                whileTap={selectedAnswer === null ? { scale: 0.98 } : {}}
+              >
+                {option}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Feedback and Controls */}
+          <AnimatePresence>
+            {selectedAnswer && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-center space-y-4"
+              >
+                <p
+                  className={`text-xl font-bold ${
+                    isCorrect ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {isCorrect ? 'Correct! 🎉' : 'Incorrect 😢'}
+                </p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setShowPronunciation(!showPronunciation)}
+                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    {showPronunciation ? 'Hide' : 'Show'} Pronunciation Guide
+                  </button>
+                  {currentQuestion.word.examples && showPronunciation && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-gray-400 text-sm space-y-1"
+                    >
+                      <p className="font-medium">Examples:</p>
+                      {currentQuestion.word.examples.map((example, index) => (
+                        <p key={index}>{example}</p>
+                      ))}
+                    </motion.div>
+                  )}
+                </div>
+                {currentQuestionIndex < questions.length - 1 ? (
+                  <motion.button
+                    onClick={handleNextQuestion}
+                    className="block w-full py-3 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Next Question
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    onClick={handleRestart}
+                    className="block w-full py-3 px-6 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Try Again
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

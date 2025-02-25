@@ -41,6 +41,13 @@ const navItems: NavItem[] = [
     color: 'from-yellow-500 to-amber-500',
     description: 'Explore Bosnian culture',
   },
+  {
+    name: 'Virtual Tour',
+    href: '/tours',
+    icon: '🗺️',
+    color: 'from-emerald-500 to-teal-500',
+    description: 'Take a virtual tour of Bosnia',
+  },
 ];
 
 const PlanetaryNavigation: React.FC = () => {
