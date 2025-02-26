@@ -22,16 +22,6 @@ A sleek and powerful web app built with **TypeScript** that not only provides in
 
 ---
 
-## 🎬 Preview 
-
-🎥 **Live Demo (GIF Example)**  
-
----
-
-## 🛠 Getting Started
-
-### 1️⃣ Clone the Repository  
-
 
 
 ---
