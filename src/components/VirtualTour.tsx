@@ -1,13 +1,19 @@
-import { locations } from '@/data/tourLocations';
+import { Location, locations } from '@/data/tourLocations';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, ChevronLeft, ChevronRight, Volume2, VolumeX, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Pannellum } from 'react-pannellum';
-import { Button } from './ui/Button';
-import { LoadingSpinner } from './ui/LoadingSpinner';
+import LoadingSpinner from './ui/LoadingSpinner';
+import { Button } from './ui/button';
+
+interface Hotspot {
+  pitch: number;
+  yaw: number;
+  text: string;
+}
 
 export default function VirtualTour() {
-  const [selectedLocation, setSelectedLocation] = useState(locations[0]);
+  const [selectedLocation, setSelectedLocation] = useState<Location>(locations[0]);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -69,7 +75,7 @@ export default function VirtualTour() {
           <div className="md:col-span-1 space-y-4">
             <h2 className="text-2xl font-bold mb-4">Virtual Tour Locations</h2>
             <div className="space-y-2">
-              {locations.map((location) => (
+              {locations.map((location: Location) => (
                 <motion.button
                   key={location.id}
                   whileHover={{ scale: 1.02 }}
@@ -140,7 +146,7 @@ export default function VirtualTour() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-3">Historical Facts</h3>
               <ul className="list-disc list-inside space-y-2">
-                {selectedLocation.historicalFacts.map((fact, index) => (
+                {selectedLocation.historicalFacts.map((fact: string, index: number) => (
                   <li key={index} className="text-gray-600">{fact}</li>
                 ))}
               </ul>
@@ -230,7 +236,7 @@ export default function VirtualTour() {
                 hfov={110}
                 autoLoad
                 onLoad={() => setIsLoading(false)}
-                hotspots={selectedLocation.panorama.hotspots?.map((hotspot) => ({
+                hotspots={selectedLocation.panorama.hotspots?.map((hotspot: Hotspot) => ({
                   pitch: hotspot.pitch,
                   yaw: hotspot.yaw,
                   text: hotspot.text,
