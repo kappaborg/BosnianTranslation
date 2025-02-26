@@ -32,6 +32,77 @@ const CulturalInsights: React.FC<CulturalInsightsProps> = ({
     show: { opacity: 1, y: 0 },
   };
 
+  const renderContent = () => {
+    if (typeof content?.content === 'string') {
+      return <p className="text-gray-700 dark:text-gray-300">{content.content}</p>;
+    }
+
+    if (typeof content?.content === 'object' && content.content !== null) {
+      return (
+        <div className="space-y-6">
+          <p className="text-gray-700 dark:text-gray-300">{content.content.overview}</p>
+          
+          {content.content.instruments && (
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4">{content.content.instruments.title}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {content.content.instruments.items.map((item, index) => (
+                  <div key={index} className="bg-white/5 backdrop-blur-lg p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">{item.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {content.content.songs && (
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4">{content.content.songs.title}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {content.content.songs.items.map((item, index) => (
+                  <div key={index} className="bg-white/5 backdrop-blur-lg p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">{item.title}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{item.description}</p>
+                    {item.youtubeId && (
+                      <div className="aspect-video">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${item.youtubeId}`}
+                          title={item.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {content.content.artists && (
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4">{content.content.artists.title}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {content.content.artists.items.map((item, index) => (
+                  <div key={index} className="bg-white/5 backdrop-blur-lg p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">{item.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   // If vocabulary prop is provided, render only the vocabulary section
   if (vocabulary) {
     return (
@@ -105,7 +176,7 @@ const CulturalInsights: React.FC<CulturalInsightsProps> = ({
           animate={{ opacity: 1 }}
           className="prose dark:prose-invert max-w-none"
         >
-          <p className="text-gray-700 dark:text-gray-300">{content.content}</p>
+          {renderContent()}
         </motion.div>
 
         {/* Media Section */}
