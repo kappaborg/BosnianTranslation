@@ -19,26 +19,27 @@ export const stories: Story[] = [
   {
     id: 'sarajevo-history',
     title: 'The Legend of Sarajevo',
-    content: `Sarajevo, known as the "Jerusalem of Europe," has a rich history spanning over 500 years. The city was founded by the Ottoman Empire in the 15th century and has since been a melting pot of cultures, religions, and traditions. The name Sarajevo comes from the Turkish words 'saray' (palace) and 'ovasi' (field), referring to the field around the palace.
+    content: `Sarajevo, the capital of Bosnia and Herzegovina, has a rich history dating back to prehistoric times. The city's modern history began in the 15th century when the Ottoman governor Isa-beg Isaković transformed a small village into a city. The name Sarajevo comes from the Turkish words 'saray' (palace) and 'ovasi' (field).
 
-    One of the most significant events in Sarajevo's history was the assassination of Archduke Franz Ferdinand in 1914, which sparked World War I. Despite this turbulent past, Sarajevo has always been a symbol of unity and coexistence, where mosques, churches, and synagogues stand side by side.
+The city grew rapidly as a major trading center and cultural hub, known for its religious diversity and tolerance. It was often called the 'Jerusalem of Europe' due to the peaceful coexistence of Muslims, Christians, and Jews.
 
-    The city's resilient spirit was demonstrated during the 1984 Winter Olympics and again during the siege of Sarajevo in the 1990s. Today, Sarajevo stands as a testament to human perseverance and cultural harmony.`,
+In 1914, Sarajevo became the site of a pivotal moment in world history when Archduke Franz Ferdinand was assassinated, triggering World War I. Throughout its history, the city has demonstrated remarkable resilience, surviving various conflicts and emerging stronger each time.`,
     imageUrl: '/images/stories/sarajevo.jpg',
     category: 'history',
     readTime: '5 min',
     quiz: {
       questions: [
         {
+          question: 'Who founded modern Sarajevo?',
+          options: ['Isa-beg Isaković', 'Franz Ferdinand', 'Gazi Husrev-beg', 'Tvrtko I'],
+          correctAnswer: 0,
+          explanation: 'Isa-beg Isaković, an Ottoman governor, founded modern Sarajevo in the 15th century.'
+        },
+        {
           question: 'What does the name Sarajevo mean?',
-          options: [
-            'Holy City',
-            'Palace Field',
-            'Mountain Valley',
-            'River Town'
-          ],
+          options: ['Holy City', 'Palace Field', 'River Town', 'Mountain Valley'],
           correctAnswer: 1,
-          explanation: 'Sarajevo comes from the Turkish words "saray" (palace) and "ovasi" (field), meaning "Palace Field".'
+          explanation: 'Sarajevo comes from the Turkish words "saray" (palace) and "ovasi" (field).'
         }
       ]
     }
@@ -46,26 +47,27 @@ export const stories: Story[] = [
   {
     id: 'coffee-culture',
     title: 'Bosnian Coffee Culture',
-    content: `Bosnian coffee (Bosanska kafa) is more than just a beverage; it's a cultural ritual that has been practiced for centuries. Unlike Turkish coffee, Bosnian coffee has its own distinct preparation method and serving customs.
+    content: `Bosnian coffee (Bosanska kafa) is more than just a beverage; it's a cultural institution and a daily ritual that brings people together. The tradition dates back to the Ottoman period and has become an integral part of Bosnian identity.
 
-    The coffee is served in a traditional copper-plated pot called a džezva, accompanied by a small ceramic cup (fildžan), sugar cubes, and rahat lokum (Turkish delight). The ritual of preparing and serving Bosnian coffee is an essential part of social gatherings and hospitality.
+The preparation of Bosnian coffee is an art form, requiring specific tools and techniques. The coffee is served in a džezva (a special copper-plated pot) alongside rahat lokum (Turkish delight), sugar cubes, and a glass of water.
 
-    When drinking Bosnian coffee, it's customary to dip a sugar cube in the coffee first, take a bite, and then sip the coffee. This creates a unique taste experience that is distinctly Bosnian.`,
+The ritual of drinking Bosnian coffee is a social event, often lasting for hours as people engage in conversation, known as "sijelo" or "muhabbet". It's considered impolite to rush through your coffee, as the experience is meant to be savored and enjoyed.`,
     imageUrl: '/images/stories/coffee.jpg',
     category: 'tradition',
     readTime: '4 min',
     quiz: {
       questions: [
         {
-          question: 'What is the traditional Bosnian coffee pot called?',
-          options: [
-            'Fildžan',
-            'Džezva',
-            'Kahva',
-            'Lokum'
-          ],
-          correctAnswer: 1,
-          explanation: 'A džezva is the traditional copper-plated pot used to prepare Bosnian coffee.'
+          question: 'What is the traditional pot used for making Bosnian coffee called?',
+          options: ['Džezva', 'Ibrik', 'Cezve', 'Fildžan'],
+          correctAnswer: 0,
+          explanation: 'A džezva is the traditional copper-plated pot used for preparing Bosnian coffee.'
+        },
+        {
+          question: 'What is typically served alongside Bosnian coffee?',
+          options: ['Chocolate', 'Baklava', 'Rahat lokum', 'Cookies'],
+          correctAnswer: 2,
+          explanation: 'Rahat lokum (Turkish delight) is traditionally served with Bosnian coffee.'
         }
       ]
     }
@@ -73,26 +75,27 @@ export const stories: Story[] = [
   {
     id: 'drina-bridge',
     title: 'The Tale of Drina Bridge',
-    content: `The famous bridge on the Drina River in Višegrad is not just an architectural marvel but also a symbol of Bosnia's complex history. Built in the 16th century during the Ottoman Empire, the bridge was commissioned by Grand Vizier Mehmed Paša Sokolović.
+    content: `The famous bridge on the Drina River in Višegrad is not just an architectural marvel but a symbol of connection between different cultures and peoples. Built in the 16th century during the height of the Ottoman Empire, the bridge was commissioned by Grand Vizier Mehmed Paša Sokolović.
 
-    The bridge's construction is surrounded by legends and was immortalized in Ivo Andrić's Nobel Prize-winning novel "The Bridge on the Drina." The most famous legend tells of the sacrifice of two babies who were built into the bridge's central pillars to appease the river spirit and ensure the bridge's stability.
+The bridge's construction is surrounded by fascinating legends and was immortalized in Ivo Andrić's Nobel Prize-winning novel "The Bridge on the Drina". The bridge has 11 arches spanning the emerald waters of the Drina River.
 
-    Today, the bridge stands as a UNESCO World Heritage site and continues to connect people across the Drina River, just as it has done for over 400 years.`,
+Despite numerous conflicts and natural disasters, the bridge has stood the test of time, becoming a UNESCO World Heritage site in 2007. It continues to serve as both a functional crossing and a testament to the region's rich history.`,
     imageUrl: '/images/stories/drina-bridge.jpg',
     category: 'folklore',
     readTime: '6 min',
     quiz: {
       questions: [
         {
-          question: 'Who commissioned the building of the Drina Bridge?',
-          options: [
-            'Ivo Andrić',
-            'Sultan Suleiman',
-            'Mehmed Paša Sokolović',
-            'King Tvrtko'
-          ],
-          correctAnswer: 2,
+          question: 'Who commissioned the Bridge on the Drina?',
+          options: ['Ivo Andrić', 'Mehmed Paša Sokolović', 'Suleiman the Magnificent', 'Mimar Sinan'],
+          correctAnswer: 1,
           explanation: 'The bridge was commissioned by Grand Vizier Mehmed Paša Sokolović in the 16th century.'
+        },
+        {
+          question: 'When did the Bridge on the Drina become a UNESCO World Heritage site?',
+          options: ['2000', '2003', '2007', '2010'],
+          correctAnswer: 2,
+          explanation: 'The Bridge on the Drina was designated as a UNESCO World Heritage site in 2007.'
         }
       ]
     }
@@ -100,26 +103,27 @@ export const stories: Story[] = [
   {
     id: 'modern-art',
     title: 'Modern Bosnian Art Scene',
-    content: `Bosnia's contemporary art scene is vibrant and dynamic, reflecting both traditional influences and modern perspectives. The Ars Aevi Museum in Sarajevo houses one of the most important collections of contemporary art in Southeast Europe.
+    content: `Bosnia's contemporary art scene is vibrant and dynamic, reflecting both traditional influences and modern perspectives. The capital, Sarajevo, hosts numerous galleries and annual events that showcase local and international artists.
 
-    Young Bosnian artists are making waves internationally, combining traditional motifs with contemporary techniques. Street art and murals have become particularly significant in urban areas, often addressing themes of peace, reconciliation, and cultural identity.
+The Ars Aevi Museum of Contemporary Art, established during the siege of Sarajevo, has become a symbol of cultural resistance and renaissance. The collection includes works from renowned artists worldwide who donated their pieces in solidarity with the city.
 
-    Annual events like the Sarajevo Film Festival and various art biennials have put Bosnia on the global cultural map, attracting artists and audiences from around the world.`,
+Street art and public installations have also become prominent features of urban spaces, with artists using their work to address social issues and preserve historical memory. The annual Sarajevo Film Festival has emerged as one of the largest cultural events in Southeast Europe.`,
     imageUrl: '/images/stories/modern-art.jpg',
     category: 'modern',
-    readTime: '3 min',
+    readTime: '4 min',
     quiz: {
       questions: [
         {
-          question: 'Which museum houses an important collection of contemporary art in Sarajevo?',
-          options: [
-            'National Museum',
-            'Ars Aevi Museum',
-            'History Museum',
-            'Olympic Museum'
-          ],
+          question: 'Which museum was established during the siege of Sarajevo?',
+          options: ['National Museum', 'Ars Aevi Museum', 'History Museum', 'Olympic Museum'],
           correctAnswer: 1,
-          explanation: 'The Ars Aevi Museum in Sarajevo houses one of the most important collections of contemporary art in Southeast Europe.'
+          explanation: 'The Ars Aevi Museum of Contemporary Art was established during the siege of Sarajevo.'
+        },
+        {
+          question: 'What is one of the largest cultural events in Southeast Europe?',
+          options: ['Sarajevo Film Festival', 'MESS Theatre Festival', 'Jazz Fest Sarajevo', 'Baščaršija Nights'],
+          correctAnswer: 0,
+          explanation: 'The Sarajevo Film Festival has become one of the largest cultural events in Southeast Europe.'
         }
       ]
     }

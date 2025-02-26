@@ -1,5 +1,5 @@
 declare module 'react-pannellum' {
-  export interface PannellumProps {
+  interface PannellumProps {
     width: string;
     height: string;
     image: string;
@@ -16,5 +16,6 @@ declare module 'react-pannellum' {
     }>;
   }
 
-  export const Pannellum: React.FC<PannellumProps>;
+  const ReactPannellum: React.FC<PannellumProps>;
+  export default ReactPannellum;
 } 

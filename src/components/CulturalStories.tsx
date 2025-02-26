@@ -5,34 +5,45 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
 
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+}
+
+interface Quiz {
+  questions: QuizQuestion[];
+}
+
 export default function CulturalStories() {
   const [selectedCategory, setSelectedCategory] = useState<Story['category']>('history');
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
-  const [quizActive, setQuizActive] = useState(false);
-  const [quizScore, setQuizScore] = useState(0);
+  const [showQuiz, setShowQuiz] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
 
   const filteredStories = stories.filter(story => story.category === selectedCategory);
 
   const handleStorySelect = (story: Story) => {
     setSelectedStory(story);
-    setQuizActive(false);
-    setQuizScore(0);
+    setShowQuiz(false);
     setCurrentQuestionIndex(0);
+    setQuizScore(0);
   };
 
   const handleQuizAnswer = (answerIndex: number) => {
     if (!selectedStory?.quiz) return;
 
-    const currentQuestion = selectedStory.quiz[currentQuestionIndex];
+    const currentQuestion = selectedStory.quiz.questions[currentQuestionIndex];
     if (answerIndex === currentQuestion.correctAnswer) {
       setQuizScore(score => score + 1);
     }
 
-    if (currentQuestionIndex < selectedStory.quiz.length - 1) {
+    if (currentQuestionIndex < selectedStory.quiz.questions.length - 1) {
       setCurrentQuestionIndex(index => index + 1);
     } else {
-      setQuizActive(false);
+      setShowQuiz(false);
     }
   };
 
@@ -126,33 +137,33 @@ export default function CulturalStories() {
             <p className="text-gray-300 whitespace-pre-line">{selectedStory.content}</p>
           </div>
 
-          {selectedStory.quiz && !quizActive && (
+          {selectedStory.quiz && !showQuiz && (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setQuizActive(true)}
+              onClick={() => setShowQuiz(true)}
               className="mt-8 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               Test Your Knowledge
             </motion.button>
           )}
 
-          {quizActive && selectedStory.quiz && (
+          {showQuiz && selectedStory.quiz && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-8 space-y-6"
             >
               <h4 className="text-xl font-semibold text-white">
-                Question {currentQuestionIndex + 1} of {selectedStory.quiz.length}
+                Question {currentQuestionIndex + 1} of {selectedStory.quiz.questions.length}
               </h4>
               
               <p className="text-lg text-white">
-                {selectedStory.quiz[currentQuestionIndex].question}
+                {selectedStory.quiz.questions[currentQuestionIndex].question}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selectedStory.quiz[currentQuestionIndex].options.map((option, index) => (
+                {selectedStory.quiz.questions[currentQuestionIndex].options.map((option, index) => (
                   <motion.button
                     key={index}
                     whileHover={{ scale: 1.02 }}
@@ -166,7 +177,7 @@ export default function CulturalStories() {
               </div>
 
               <p className="text-gray-400">
-                Score: {quizScore} / {selectedStory.quiz.length}
+                Score: {quizScore} / {selectedStory.quiz.questions.length}
               </p>
             </motion.div>
           )}
