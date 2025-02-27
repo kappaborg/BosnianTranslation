@@ -1,12 +1,10 @@
 'use client';
 
 import { Location } from '@/types';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
-// Dynamically import react-leaflet components to avoid SSR issues
+// Dynamically import react-leaflet components
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
@@ -27,17 +25,6 @@ const Popup = dynamic(
   { ssr: false }
 );
 
-// Fix for default marker icons in Next.js
-const icon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
 interface MapProps {
   locations: Location[];
   onLocationSelect?: (location: Location) => void;
@@ -45,8 +32,27 @@ interface MapProps {
 
 const Map = ({ locations, onLocationSelect }: MapProps) => {
   const [mounted, setMounted] = useState(false);
+  const [mapIcon, setMapIcon] = useState<any>(null);
 
   useEffect(() => {
+    // Import Leaflet only on client side
+    import('leaflet').then((L) => {
+      // Initialize Leaflet icon
+      const icon = L.default.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      setMapIcon(icon);
+    });
+
+    // Import Leaflet CSS
+    import('leaflet/dist/leaflet.css');
+    
     setMounted(true);
   }, []);
 
@@ -75,11 +81,11 @@ const Map = ({ locations, onLocationSelect }: MapProps) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {locations.map((location) => (
+        {mapIcon && locations.map((location) => (
           <Marker
             key={location.id}
             position={[location.coordinates.lat, location.coordinates.lng]}
-            icon={icon}
+            icon={mapIcon}
             eventHandlers={{
               click: () => onLocationSelect?.(location)
             }}
@@ -105,6 +111,7 @@ const Map = ({ locations, onLocationSelect }: MapProps) => {
   );
 };
 
+// Export with dynamic to ensure no SSR
 export default dynamic(() => Promise.resolve(Map), {
   ssr: false
 });
