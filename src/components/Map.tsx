@@ -11,14 +11,17 @@ const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
 );
+
 const TileLayer = dynamic(
   () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false }
 );
+
 const Marker = dynamic(
   () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false }
 );
+
 const Popup = dynamic(
   () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
@@ -40,14 +43,14 @@ interface MapProps {
   onLocationSelect?: (location: Location) => void;
 }
 
-export default function Map({ locations, onLocationSelect }: MapProps) {
-  const [isMounted, setIsMounted] = useState(false);
+const Map = ({ locations, onLocationSelect }: MapProps) => {
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    setMounted(true);
   }, []);
 
-  if (!isMounted) {
+  if (!mounted) {
     return (
       <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
         <p className="text-gray-500">Loading map...</p>
@@ -100,5 +103,9 @@ export default function Map({ locations, onLocationSelect }: MapProps) {
       </MapContainer>
     </div>
   );
-}
+};
+
+export default dynamic(() => Promise.resolve(Map), {
+  ssr: false
+});
 

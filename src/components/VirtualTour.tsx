@@ -1,11 +1,18 @@
+'use client';
+
 import { locations } from '@/data/tourLocations';
 import { Location } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, ChevronLeft, ChevronRight, Volume2, VolumeX, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import ReactPannellum from 'react-pannellum';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { Button } from './ui/button';
+
+const ReactPannellum = dynamic(() => import('react-pannellum'), {
+  ssr: false,
+  loading: () => <LoadingSpinner />
+});
 
 interface Hotspot {
   pitch: number;
@@ -13,7 +20,7 @@ interface Hotspot {
   text: string;
 }
 
-export default function VirtualTour() {
+const VirtualTour = () => {
   const [selectedLocation, setSelectedLocation] = useState<Location>(locations[0]);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -22,8 +29,10 @@ export default function VirtualTour() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -33,8 +42,10 @@ export default function VirtualTour() {
   }, []);
 
   useEffect(() => {
-    fetchWeatherData();
-  }, [selectedLocation]);
+    if (mounted) {
+      fetchWeatherData();
+    }
+  }, [selectedLocation, mounted]);
 
   const fetchWeatherData = async () => {
     try {
@@ -67,6 +78,14 @@ export default function VirtualTour() {
       setCurrentImageIndex((prev) => (prev === selectedLocation.images.length - 1 ? 0 : prev + 1));
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
@@ -253,4 +272,8 @@ export default function VirtualTour() {
       {isLoading && <LoadingSpinner />}
     </div>
   );
-} 
+};
+
+export default dynamic(() => Promise.resolve(VirtualTour), {
+  ssr: false
+}); 
