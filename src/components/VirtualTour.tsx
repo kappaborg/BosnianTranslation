@@ -2,7 +2,7 @@ import { Location, locations } from '@/data/tourLocations';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, ChevronLeft, ChevronRight, Volume2, VolumeX, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Pannellum } from 'react-pannellum';
+import ReactPannellum from 'react-pannellum';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { Button } from './ui/button';
 
@@ -227,7 +227,7 @@ export default function VirtualTour() {
             </button>
             
             <div className="w-full h-full max-w-7xl mx-auto p-4">
-              <Pannellum
+              <ReactPannellum
                 width="100%"
                 height="100%"
                 image={selectedLocation.panorama.url}

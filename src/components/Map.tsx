@@ -1,7 +1,8 @@
+import { Location } from '@/types';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { Location } from '../data/tourLocations';
 
 // Fix for default marker icons in Next.js
 const icon = L.icon({
@@ -16,58 +17,62 @@ const icon = L.icon({
 
 interface MapProps {
   locations: Location[];
+  onLocationSelect?: (location: Location) => void;
 }
 
-export default function Map({ locations }: MapProps) {
-  const [error, setError] = useState<Error | null>(null);
+export default function Map({ locations, onLocationSelect }: MapProps) {
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Check if we're in a browser environment
-    if (typeof window === 'undefined') {
-      setError(new Error('Map cannot be rendered on the server'));
-      return;
-    }
-
-    // Check if Leaflet is available
-    if (!L) {
-      setError(new Error('Leaflet library failed to load'));
-      return;
-    }
+    setIsMounted(true);
   }, []);
 
-  if (error) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-red-500/10">
-        <div className="text-center text-red-500">
-          <p>Failed to load map</p>
-          <p className="text-sm">{error.message}</p>
-        </div>
-      </div>
-    );
+  if (!isMounted) {
+    return null;
   }
 
+  const center = {
+    lat: 43.915886,
+    lng: 17.679076
+  };
+
   return (
-    <MapContainer
-      center={[43.8563, 18.4131]}
-      zoom={7}
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {locations.map((location) => (
-        <Marker
-          key={location.id}
-          position={[location.coordinates.lat, location.coordinates.lng]}
-          icon={icon}
-        >
-          <Popup>
-            <h3 className="font-bold">{location.name}</h3>
-            <p className="text-sm">{location.description.slice(0, 100)}...</p>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div className="w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
+      <MapContainer
+        center={[center.lat, center.lng]}
+        zoom={7}
+        style={{ height: '100%', width: '100%' }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {locations.map((location) => (
+          <Marker
+            key={location.id}
+            position={[location.coordinates.lat, location.coordinates.lng]}
+            icon={icon}
+            eventHandlers={{
+              click: () => onLocationSelect?.(location)
+            }}
+          >
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-semibold text-lg">{location.name}</h3>
+                <p className="text-sm text-gray-600 mt-1">{location.description}</p>
+                {location.audioGuide && (
+                  <div className="mt-2">
+                    <audio controls className="w-full">
+                      <source src={location.audioGuide} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   );
 } 

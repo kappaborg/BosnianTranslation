@@ -424,4 +424,26 @@ export interface CosmicWord {
   category?: string;
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
   pronunciation: string;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  description: string;
+  images: string[];
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  historicalFacts: string[];
+  audioGuide?: string;
+  panorama?: {
+    url: string;
+    thumbnailUrl: string;
+    hotspots?: Array<{
+      pitch: number;
+      yaw: number;
+      text: string;
+    }>;
+  };
 } 
