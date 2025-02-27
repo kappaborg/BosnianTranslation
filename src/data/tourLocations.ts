@@ -6,10 +6,7 @@ export const locations: Location[] = [
     name: 'Stari Most (Old Bridge)',
     description: 'The iconic Old Bridge in Mostar, originally built in the 16th century, stands as a symbol of Bosnia and Herzegovina. This UNESCO World Heritage site connects the two parts of the city across the Neretva River.',
     images: [
-      '/images/tours/old-bridge-1.jpg',
-      '/images/tours/old-bridge-2.jpg',
-      '/images/tours/old-bridge-3.jpg',
-      '/images/tours/old-bridge-4.jpg'
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Mostar_Old_Bridge.jpg/1280px-Mostar_Old_Bridge.jpg'
     ],
     coordinates: {
       lat: 43.337,
@@ -42,12 +39,9 @@ export const locations: Location[] = [
   {
     id: 'bascarsija',
     name: 'Baščaršija',
-    description: 'The historical and cultural heart of Sarajevo, Baščaršija is the city's old bazaar and the historical and cultural center of the city.',
+    description: 'The historical and cultural heart of Sarajevo, Baščaršija is the city\'s old bazaar and the historical and cultural center of the city.',
     images: [
-      '/images/tours/bascarsija-1.jpg',
-      '/images/tours/bascarsija-2.jpg',
-      '/images/tours/bascarsija-3.jpg',
-      '/images/tours/bascarsija-4.jpg'
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Sarajevo_Sebilj_2.jpg/1280px-Sarajevo_Sebilj_2.jpg'
     ],
     coordinates: {
       lat: 43.859,
@@ -82,10 +76,7 @@ export const locations: Location[] = [
     name: 'Sarajevo City Hall (Vijećnica)',
     description: 'A pseudo-Moorish architectural masterpiece, the Sarajevo City Hall was built during the Austro-Hungarian period and served as the National Library until its destruction in 1992.',
     images: [
-      '/images/tours/vijecnica-1.jpg',
-      '/images/tours/vijecnica-2.jpg',
-      '/images/tours/vijecnica-3.jpg',
-      '/images/tours/vijecnica-4.jpg'
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Sarajevo_City_Hall%2C_Sarajevo%2C_Bosnia_and_Herzegovina.jpg/1280px-Sarajevo_City_Hall%2C_Sarajevo%2C_Bosnia_and_Herzegovina.jpg'
     ],
     coordinates: {
       lat: 43.859,
