@@ -88,7 +88,7 @@ export default function Map({ locations, onLocationSelect }: MapProps) {
                 {location.audioGuide && (
                   <div className="mt-2">
                     <audio controls className="w-full">
-                      <source src={location.audioGuide} type="audio/mpeg" />
+                      <source src={location.audioGuide.url} type="audio/mpeg" />
                       Your browser does not support the audio element.
                     </audio>
                   </div>

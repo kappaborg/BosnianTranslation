@@ -35,6 +35,11 @@ export const locations: Location[] = [
           type: 'info'
         }
       ]
+    },
+    audioGuide: {
+      url: 'https://example.com/audio/old-bridge-guide.mp3',
+      duration: '5:30',
+      transcript: 'Welcome to the Old Bridge of Mostar...'
     }
   },
   {

@@ -157,7 +157,7 @@ export default function VirtualTour() {
             {selectedLocation.audioGuide && (
               <audio
                 id="audioGuide"
-                src={selectedLocation.audioGuide}
+                src={selectedLocation.audioGuide.url}
                 onEnded={() => setIsAudioPlaying(false)}
                 className="hidden"
               />
