@@ -25,12 +25,14 @@ export const locations: Location[] = [
         {
           pitch: -10,
           yaw: 180,
-          text: 'View of the Neretva River'
+          text: 'View of the Neretva River',
+          type: 'info'
         },
         {
           pitch: 0,
           yaw: 0,
-          text: 'Bridge entrance'
+          text: 'Bridge entrance',
+          type: 'info'
         }
       ]
     }

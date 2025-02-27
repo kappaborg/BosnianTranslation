@@ -1,4 +1,5 @@
-import { Location, locations } from '@/data/tourLocations';
+import { locations } from '@/data/tourLocations';
+import { Location } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, ChevronLeft, ChevronRight, Volume2, VolumeX, X } from 'lucide-react';
 import { useEffect, useState } from 'react';

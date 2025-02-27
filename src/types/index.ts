@@ -426,6 +426,7 @@ export interface CosmicWord {
   pronunciation: string;
 }
 
+// Virtual Tour Types
 export interface Location {
   id: string;
   name: string;
@@ -436,7 +437,6 @@ export interface Location {
     lng: number;
   };
   historicalFacts: string[];
-  audioGuide?: string;
   panorama?: {
     url: string;
     thumbnailUrl: string;
@@ -444,6 +444,12 @@ export interface Location {
       pitch: number;
       yaw: number;
       text: string;
+      type?: string;
     }>;
+  };
+  audioGuide?: {
+    url: string;
+    duration: string;
+    transcript: string;
   };
 } 
