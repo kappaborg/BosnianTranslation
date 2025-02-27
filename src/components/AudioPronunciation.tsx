@@ -1,9 +1,7 @@
 'use client';
 
-import { setupSpeechSynthesis } from '@/utils/pronunciation';
-import { MicrophoneIcon, PlayIcon, StopIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { improveBosnianPronunciation, setupSpeechSynthesis } from '@/utils/pronunciation';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   text: string;
@@ -12,71 +10,40 @@ interface Props {
   onRecordingComplete?: (blob: Blob) => void;
 }
 
-// Bosnian pronunciation mappings
-const bosnianPronunciationMap: { [key: string]: string } = {
-  // Special characters
-  'č': 'ch',
-  'ć': 'ch',
-  'đ': 'dj',
-  'š': 'sh',
-  'ž': 'zh',
-  'dž': 'j',
-  'lj': 'ly',
-  'nj': 'ny',
-  
-  // Specific syllables and sounds
-  'je': 'ye',
-  'ja': 'ya',
-  'ju': 'yu',
-  'jo': 'yo',
-  'ije': 'iye',
-  'nja': 'nya',
-  'nje': 'nye',
-  'ji': 'yi',
-  
-  // Common word patterns
-  'gdje': 'gdye',
-  'tje': 'tye',
-  'dje': 'dye',
-  'mje': 'mye',
-  'sje': 'sye',
-  'zje': 'zye',
-  'rje': 'rye',
-  
-  // Additional combinations
-  'ija': 'iya',
-  'iju': 'iyu',
-  'ijo': 'iyo',
-};
-
 export default function AudioPronunciation({ text, lang, audioUrl, onRecordingComplete }: Props) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioURL, setAudioURL] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
-  const audioElement = useRef<HTMLAudioElement | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize audio element if URL is provided
+    if (audioUrl) {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onended = () => setIsPlaying(false);
+    }
+
+    // Clean up on unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [audioUrl]);
 
   const preprocessBosnianText = (text: string): string => {
-    let processedText = text.toLowerCase();
-    
-    // First, handle multi-character patterns
-    Object.entries(bosnianPronunciationMap)
-      .sort((a, b) => b[0].length - a[0].length) // Sort by length to handle longer patterns first
-      .forEach(([bosnian, phonetic]) => {
-        const regex = new RegExp(bosnian, 'gi');
-        processedText = processedText.replace(regex, phonetic);
-      });
+    // Apply improved Bosnian pronunciation rules
+    let processedText = text;
 
-    // Additional pronunciation rules
-    processedText = processedText
-      // Handle word-initial 'j' sounds
-      .replace(/\bj([aeiou])/g, 'y$1')
-      // Handle intervocalic 'j'
-      .replace(/([aeiou])j([aeiou])/g, '$1y$2')
-      // Ensure proper stress on long vowels
-      .replace(/ije/g, 'iye');
+    // Handle special characters
+    processedText = improveBosnianPronunciation(processedText);
+
+    // Add natural pauses
+    processedText = processedText.replace(/([.!?])/g, '$1...');
+    processedText = processedText.replace(/([,;])/g, '$1...');
 
     return processedText;
   };
@@ -84,172 +51,129 @@ export default function AudioPronunciation({ text, lang, audioUrl, onRecordingCo
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder.current = new MediaRecorder(stream);
-      audioChunks.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
 
-      mediaRecorder.current.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
+          audioChunksRef.current.push(event.data);
         }
       };
 
-      mediaRecorder.current.onstop = () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioURL(url);
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        setAudioBlob(audioBlob);
         if (onRecordingComplete) {
           onRecordingComplete(audioBlob);
         }
       };
 
-      mediaRecorder.current.start();
+      mediaRecorder.start();
       setIsRecording(true);
-      setError(null);
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      setError('Error accessing microphone. Please check permissions.');
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
-      mediaRecorder.current.stop();
-      mediaRecorder.current.stream.getTracks().forEach((track) => track.stop());
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
+      
+      // Stop all tracks on the stream
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
   };
 
   const clearRecording = () => {
-    if (audioURL) {
-      URL.revokeObjectURL(audioURL);
-      setAudioURL(null);
+    setAudioBlob(null);
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
   };
 
   const playAudio = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      return;
+    }
+
     try {
-      if (isPlaying) {
-        if (audioElement.current) {
-          audioElement.current.pause();
-          audioElement.current.currentTime = 0;
-        }
-        setIsPlaying(false);
-        return;
-      }
+      if (audioUrl && audioRef.current) {
+        // Play provided audio file
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        // Use text-to-speech with improved pronunciation
+        const processedText = preprocessBosnianText(text);
+        const utterance = setupSpeechSynthesis(processedText, lang);
+        
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = () => {
+          console.error('Speech synthesis error');
+          setIsPlaying(false);
+        };
 
-      // If we have a pre-recorded audio URL, use that
-      if (audioUrl) {
-        if (!audioElement.current) {
-          audioElement.current = new Audio(audioUrl);
-        } else {
-          audioElement.current.src = audioUrl;
-        }
-      }
-      // Otherwise, if we have a user recording, use that
-      else if (audioURL) {
-        if (!audioElement.current) {
-          audioElement.current = new Audio(audioURL);
-        } else {
-          audioElement.current.src = audioURL;
-        }
-      }
-      // If no audio is available, use text-to-speech
-      else {
-        const utterance = setupSpeechSynthesis(text, lang);
         window.speechSynthesis.speak(utterance);
-        return;
+        setIsPlaying(true);
       }
-
-      audioElement.current.onplay = () => setIsPlaying(true);
-      audioElement.current.onended = () => setIsPlaying(false);
-      audioElement.current.onerror = (e) => {
-        console.error('Error playing audio:', e);
-        setError('Failed to play audio. Please try again.');
-        setIsPlaying(false);
-      };
-
-      await audioElement.current.play();
-      setError(null);
     } catch (error) {
       console.error('Error playing audio:', error);
-      setError('Failed to play audio. Please try again.');
       setIsPlaying(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      {error && (
-        <div className="text-red-500 text-sm mb-2">
-          {error}
-        </div>
-      )}
-      
-      <div className="flex items-center space-x-2">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={playAudio}
-          className={`p-2 rounded-full ${
-            isPlaying
-              ? 'bg-purple-600 text-white hover:bg-purple-700'
-              : 'bg-indigo-600 text-white hover:bg-indigo-700'
-          } transition-colors`}
-          title={isPlaying ? 'Stop' : 'Play pronunciation'}
+    <div className="flex items-center space-x-4">
+      <button
+        onClick={playAudio}
+        className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+        aria-label={isPlaying ? 'Stop' : 'Play'}
+      >
+        {isPlaying ? (
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6h4v12H6zm8 0h4v12h-4z" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        )}
+      </button>
+
+      <button
+        onClick={isRecording ? stopRecording : startRecording}
+        className={`p-2 rounded-full ${
+          isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+        } text-white`}
+        aria-label={isRecording ? 'Stop Recording' : 'Start Recording'}
+      >
+        {isRecording ? (
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+        )}
+      </button>
+
+      {audioBlob && (
+        <button
+          onClick={clearRecording}
+          className="p-2 rounded-full bg-gray-500 hover:bg-gray-600 text-white"
+          aria-label="Clear Recording"
         >
-          <PlayIcon className="w-5 h-5" />
-        </motion.button>
-
-        {!isRecording && !audioURL && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={startRecording}
-            className="p-2 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
-            title="Record your pronunciation"
-          >
-            <MicrophoneIcon className="w-5 h-5" />
-          </motion.button>
-        )}
-
-        {isRecording && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={stopRecording}
-            className="p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors animate-pulse"
-            title="Stop recording"
-          >
-            <StopIcon className="w-5 h-5" />
-          </motion.button>
-        )}
-
-        {audioURL && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={clearRecording}
-            className="p-2 rounded-full bg-gray-600 text-white hover:bg-gray-700 transition-colors"
-            title="Clear recording"
-          >
-            <TrashIcon className="w-5 h-5" />
-          </motion.button>
-        )}
-      </div>
-
-      {audioURL && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="w-full mt-2"
-        >
-          <audio
-            src={audioURL}
-            controls
-            className="w-full max-w-[200px]"
-          />
-        </motion.div>
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
       )}
     </div>
   );
