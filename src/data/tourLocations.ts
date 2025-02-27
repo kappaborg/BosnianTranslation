@@ -17,7 +17,23 @@ export const locations: Location[] = [
       'The original bridge stood for 427 years before being destroyed in 1993',
       'Reconstructed and reopened in 2004 using many original stones',
       'Famous for its traditional diving competitions'
-    ]
+    ],
+    panorama: {
+      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Mostar_Old_Bridge_360_Panorama_at_Night.jpg/2880px-Mostar_Old_Bridge_360_Panorama_at_Night.jpg',
+      thumbnailUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Mostar_Old_Bridge_360_Panorama_at_Night.jpg/640px-Mostar_Old_Bridge_360_Panorama_at_Night.jpg',
+      hotspots: [
+        {
+          pitch: -10,
+          yaw: 180,
+          text: 'View of the Neretva River'
+        },
+        {
+          pitch: 0,
+          yaw: 0,
+          text: 'Bridge entrance'
+        }
+      ]
+    }
   },
   {
     id: 'bascarsija',

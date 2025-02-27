@@ -1,4 +1,11 @@
 declare module 'react-pannellum' {
+  interface Hotspot {
+    pitch: number;
+    yaw: number;
+    text: string;
+    type: string;
+  }
+
   interface PannellumProps {
     width: string;
     height: string;
@@ -8,12 +15,7 @@ declare module 'react-pannellum' {
     hfov?: number;
     autoLoad?: boolean;
     onLoad?: () => void;
-    hotspots?: Array<{
-      pitch: number;
-      yaw: number;
-      text: string;
-      type: string;
-    }>;
+    hotspots?: Hotspot[];
   }
 
   const ReactPannellum: React.FC<PannellumProps>;

@@ -30,21 +30,6 @@ export default function PanoramaViewer({ location }: PanoramaViewerProps) {
     );
   }
 
-  const config = {
-    autoLoad: true,
-    compass: true,
-    showZoomCtrl: true,
-    showFullscreenCtrl: true,
-    hotSpots: location.panorama.hotspots?.map((hotspot) => ({
-      type: 'info',
-      cssClass: 'custom-hotspot',
-      pitch: hotspot.pitch,
-      yaw: hotspot.yaw,
-      text: hotspot.text,
-      handleClick: () => setActiveHotspot(hotspot.text),
-    })),
-  };
-
   return (
     <div className="space-y-4">
       <div className="relative w-full h-[500px] rounded-lg overflow-hidden">
@@ -56,10 +41,15 @@ export default function PanoramaViewer({ location }: PanoramaViewerProps) {
           yaw={0}
           hfov={110}
           autoLoad
+          hotspots={location.panorama.hotspots?.map((hotspot) => ({
+            pitch: hotspot.pitch,
+            yaw: hotspot.yaw,
+            text: hotspot.text,
+            type: "info"
+          }))}
           onLoad={() => {
             console.log('Panorama loaded');
           }}
-          config={config}
         />
       </div>
 
