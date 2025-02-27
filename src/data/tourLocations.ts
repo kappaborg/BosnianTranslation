@@ -17,24 +17,7 @@ export const locations: Location[] = [
       'The original bridge stood for 427 years before being destroyed in 1993',
       'Reconstructed and reopened in 2004 using many original stones',
       'Famous for its traditional diving competitions'
-    ],
-    audioGuide: '/audio/old-bridge-guide.mp3',
-    panorama: {
-      url: '/panoramas/old-bridge-360.jpg',
-      thumbnailUrl: '/panoramas/old-bridge-thumb.jpg',
-      hotspots: [
-        {
-          pitch: -10,
-          yaw: 180,
-          text: 'View of the Neretva River'
-        },
-        {
-          pitch: 0,
-          yaw: 0,
-          text: 'Bridge entrance'
-        }
-      ]
-    }
+    ]
   },
   {
     id: 'bascarsija',
@@ -52,24 +35,7 @@ export const locations: Location[] = [
       'Name derives from "baš" (main) and "čaršija" (bazaar)',
       'Features the famous Sebilj fountain, built in 1753',
       'Home to traditional crafts including coppersmith and woodcarving'
-    ],
-    audioGuide: '/audio/bascarsija-guide.mp3',
-    panorama: {
-      url: '/panoramas/bascarsija-360.jpg',
-      thumbnailUrl: '/panoramas/bascarsija-thumb.jpg',
-      hotspots: [
-        {
-          pitch: 0,
-          yaw: 90,
-          text: 'Sebilj Fountain'
-        },
-        {
-          pitch: 20,
-          yaw: -90,
-          text: 'Craftsmen\'s Shops'
-        }
-      ]
-    }
+    ]
   },
   {
     id: 'vijecnica',
@@ -87,23 +53,6 @@ export const locations: Location[] = [
       'Designed by Czech architect Karel Pařík',
       'Restored and reopened in 2014 after being destroyed in 1992',
       'Now hosts the National Library of Bosnia and Herzegovina'
-    ],
-    audioGuide: '/audio/vijecnica-guide.mp3',
-    panorama: {
-      url: '/panoramas/vijecnica-360.jpg',
-      thumbnailUrl: '/panoramas/vijecnica-thumb.jpg',
-      hotspots: [
-        {
-          pitch: 30,
-          yaw: 0,
-          text: 'Main Hall Ceiling'
-        },
-        {
-          pitch: -10,
-          yaw: 180,
-          text: 'Main Entrance'
-        }
-      ]
-    }
+    ]
   }
 ]; 

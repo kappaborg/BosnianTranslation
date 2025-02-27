@@ -1,3 +1,5 @@
+'use client';
+
 import { Location } from '@/types';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -34,10 +36,12 @@ export default function PanoramaViewer({ location }: PanoramaViewerProps) {
     showZoomCtrl: true,
     showFullscreenCtrl: true,
     hotSpots: location.panorama.hotspots?.map((hotspot) => ({
-      ...hotspot,
       type: 'info',
       cssClass: 'custom-hotspot',
-      clickHandlerFunc: () => setActiveHotspot(hotspot.text),
+      pitch: hotspot.pitch,
+      yaw: hotspot.yaw,
+      text: hotspot.text,
+      handleClick: () => setActiveHotspot(hotspot.text),
     })),
   };
 
@@ -45,15 +49,17 @@ export default function PanoramaViewer({ location }: PanoramaViewerProps) {
     <div className="space-y-4">
       <div className="relative w-full h-[500px] rounded-lg overflow-hidden">
         <ReactPannellum
-          id={`panorama-${location.id}`}
-          sceneId="default"
-          imageSource={location.panorama.url}
-          config={config}
-          style={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: '#000000',
+          width="100%"
+          height="100%"
+          image={location.panorama.url}
+          pitch={0}
+          yaw={0}
+          hfov={110}
+          autoLoad
+          onLoad={() => {
+            console.log('Panorama loaded');
           }}
+          config={config}
         />
       </div>
 
