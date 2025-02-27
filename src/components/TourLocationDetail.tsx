@@ -86,12 +86,23 @@ export default function TourLocationDetail({ location }: TourLocationDetailProps
 
         {/* Audio Guide */}
         {location.audioGuide && (
-          <div className="mb-8 bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-lg p-6 shadow-lg mb-6">
             <h2 className="text-2xl font-semibold mb-4">Audio Guide</h2>
             <audio controls className="w-full">
-              <source src={location.audioGuide} type="audio/mpeg" />
+              <source src={location.audioGuide.url} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
+            {location.audioGuide.transcript && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">Transcript</h3>
+                <p className="text-gray-600">{location.audioGuide.transcript}</p>
+              </div>
+            )}
+            {location.audioGuide.duration && (
+              <div className="mt-2 text-sm text-gray-500">
+                Duration: {location.audioGuide.duration}
+              </div>
+            )}
           </div>
         )}
 
