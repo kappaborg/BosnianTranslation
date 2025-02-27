@@ -135,6 +135,12 @@ export default function CultureArticle() {
                   playlistId: 'PLHDS0UHVdU1zdGJZPSGxSE6XToqFGzozN',
                   title: 'Traditional Bosnian Music Collection',
                   description: 'A curated collection of authentic Bosnian traditional music, featuring classic sevdalinke and folk songs.'
+                },
+                //Adding some more playlist for both side (Yt & spotify)
+                {
+                  playlistId: 'RDQMMPPrG2l4KQc',
+                  title: 'Bosnian Folk Music',
+                  description: 'A curated collection of authentic Bosnian folk music, featuring  folk songs.'
                 }
               ],
               spotify: [
@@ -142,6 +148,11 @@ export default function CultureArticle() {
                   playlistId: '4MjOgg0gV9sXk2mTNb6Gwb',
                   title: 'Bosnian Traditional Classics',
                   description: 'A collection of timeless Bosnian traditional music and sevdalinke.'
+                },
+                {
+                  playlistId: '25dhsoKXPnqQIa7aBp4o3M',
+                  title: 'Balkan Music Collection',
+                  description: 'A curated collection of authentic Balkan music, featuring Balkan songs.'
                 }
               ]
             },
