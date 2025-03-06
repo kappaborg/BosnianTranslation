@@ -1,12 +1,7 @@
 'use client';
 
+import { Language, supportedLanguages } from '@/data/languages';
 import { extractTextFromDOCX, extractTextFromPDF, translateText } from '@/utils/translation';
-import {
-    ArrowPathIcon,
-    ArrowsUpDownIcon,
-    DocumentArrowUpIcon,
-    ExclamationCircleIcon
-} from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -29,20 +24,19 @@ const SUPPORTED_FILE_TYPES = {
   'application/xml': ['.xml']
 };
 
+interface TranslationResult {
+  original: string;
+  translated: string;
+}
+
 export default function FileTranslator({ maxFileSize = 10 }: FileTranslatorProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [sourceLanguage, setSourceLanguage] = useState<'en' | 'bs' | 'zh'>('en');
-  const [targetLanguage, setTargetLanguage] = useState<'en' | 'bs' | 'zh'>('bs');
-  const [translatedContent, setTranslatedContent] = useState<string>('');
+  const [sourceLanguage, setSourceLanguage] = useState<Language['code']>('en');
+  const [targetLanguage, setTargetLanguage] = useState<Language['code']>('bs');
+  const [results, setResults] = useState<TranslationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-
-  const languages = [
-    { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski' },
-    { code: 'zh', name: 'Chinese', nativeName: '中文' },
-  ] as const;
 
   const getAllowedExtensions = () => {
     return Object.values(SUPPORTED_FILE_TYPES).flat().join(',');
@@ -97,8 +91,11 @@ export default function FileTranslator({ maxFileSize = 10 }: FileTranslatorProps
     }
   };
 
-  const handleTranslate = async () => {
-    if (!file) return;
+  const handleTranslation = async () => {
+    if (!file) {
+      setError('Please select a file first');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -116,7 +113,7 @@ export default function FileTranslator({ maxFileSize = 10 }: FileTranslatorProps
       try {
         // Translate the extracted text
         const translatedText = await translateText(text, sourceLanguage, targetLanguage);
-        setTranslatedContent(translatedText);
+        setResults([{ original: text, translated: translatedText }]);
         setProgress(100);
       } catch (translationError) {
         throw new Error(translationError instanceof Error ? translationError.message : 'Translation failed');
@@ -139,13 +136,13 @@ export default function FileTranslator({ maxFileSize = 10 }: FileTranslatorProps
   };
 
   const handleDownload = () => {
-    if (!translatedContent) return;
+    if (results.length === 0) return;
 
-    const blob = new Blob([translatedContent], { type: 'text/plain' });
+    const blob = new Blob([JSON.stringify(results)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `translated_${file?.name.split('.')[0] || 'document'}.txt`;
+    a.download = `translated_${file?.name.split('.')[0] || 'document'}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -158,124 +155,147 @@ export default function FileTranslator({ maxFileSize = 10 }: FileTranslatorProps
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 space-y-6">
-        {/* Language Selection */}
-        <div className="flex items-center justify-center space-x-4">
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Language Selection */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gray-900 dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-xl"
+      >
+        <div className="flex flex-col md:flex-row items-center gap-4">
           <select
             value={sourceLanguage}
-            onChange={(e) => setSourceLanguage(e.target.value as typeof sourceLanguage)}
-            className="bg-white/5 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onChange={(e) => setSourceLanguage(e.target.value as Language['code'])}
+            className="bg-gray-800 dark:bg-gray-700 text-white rounded-lg p-2 flex-1"
           >
-            {languages.map((lang) => (
+            {supportedLanguages.map((lang) => (
               <option key={lang.code} value={lang.code}>
                 {lang.name} ({lang.nativeName})
               </option>
             ))}
           </select>
-
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          
+          <button
             onClick={switchLanguages}
-            className="p-2 rounded-full bg-white/5 text-white hover:bg-white/10"
+            className="p-2 bg-gray-800 dark:bg-gray-700 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600"
           >
-            <ArrowsUpDownIcon className="w-5 h-5" />
-          </motion.button>
-
+            ⇄
+          </button>
+          
           <select
             value={targetLanguage}
-            onChange={(e) => setTargetLanguage(e.target.value as typeof targetLanguage)}
-            className="bg-white/5 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onChange={(e) => setTargetLanguage(e.target.value as Language['code'])}
+            className="bg-gray-800 dark:bg-gray-700 text-white rounded-lg p-2 flex-1"
           >
-            {languages.map((lang) => (
+            {supportedLanguages.map((lang) => (
               <option key={lang.code} value={lang.code}>
                 {lang.name} ({lang.nativeName})
               </option>
             ))}
           </select>
         </div>
+      </motion.div>
 
-        {/* File Upload */}
-        <div className="flex flex-col items-center space-y-4">
-          <label className="w-full max-w-xl flex flex-col items-center px-4 py-6 bg-white/5 text-white rounded-lg cursor-pointer hover:bg-white/10">
-            <DocumentArrowUpIcon className="w-12 h-12 mb-2" />
-            <span className="text-base">
-              {file ? file.name : `Choose a file (max ${maxFileSize}MB)`}
-            </span>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              accept={getAllowedExtensions()}
-              className="hidden"
-            />
+      {/* File Input Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gray-900 dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-xl"
+      >
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <label className="flex-1 w-full">
+            <div className="relative">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                accept={getAllowedExtensions()}
+                id="file-input"
+              />
+              <div className="flex items-center justify-center w-full p-4 bg-gray-800 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                <span className="text-gray-300">
+                  {file ? file.name : `Choose a file to translate from ${supportedLanguages.find(l => l.code === sourceLanguage)?.name} to ${supportedLanguages.find(l => l.code === targetLanguage)?.name}`}
+                </span>
+              </div>
+            </div>
           </label>
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center space-x-2 text-red-400 text-sm"
-            >
-              <ExclamationCircleIcon className="w-5 h-5" />
-              <span>{error}</span>
-            </motion.div>
-          )}
+          <button
+            onClick={handleTranslation}
+            disabled={!file || isLoading}
+            className={`px-6 py-3 rounded-lg text-white font-medium transition-colors
+              ${!file || isLoading
+                ? 'bg-gray-600 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'}
+              md:w-auto w-full`}
+          >
+            {isLoading ? 'Translating...' : 'Translate'}
+          </button>
         </div>
 
-        {/* Translation Controls */}
-        <div className="flex justify-center space-x-4">
+        {error && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-red-500 mt-2"
+          >
+            {error}
+          </motion.p>
+        )}
+
+        {progress > 0 && progress < 100 && (
+          <div className="w-full bg-gray-700 rounded-full h-2.5 mt-4">
+            <div
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Results Section */}
+      {results.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-4"
+        >
+          {results.map((result, index) => (
+            <div
+              key={index}
+              className="bg-gray-900 dark:bg-gray-800 rounded-lg p-6 shadow-xl"
+            >
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-gray-300">
+                    {supportedLanguages.find(l => l.code === sourceLanguage)?.name}
+                  </h3>
+                  <p className="text-gray-400">{result.original}</p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-gray-300">
+                    {supportedLanguages.find(l => l.code === targetLanguage)?.name}
+                  </h3>
+                  <p className="text-gray-400">{result.translated}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Download Button */}
+      {results.length > 0 && (
+        <div className="mt-6 flex justify-center">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleTranslate}
-            disabled={!file || isLoading}
-            className={`px-6 py-3 rounded-lg flex items-center space-x-2 ${
-              isLoading
-                ? 'bg-gray-600 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
-            } text-white`}
+            onClick={handleDownload}
+            className="px-6 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700"
           >
-            {isLoading && <ArrowPathIcon className="w-5 h-5 animate-spin" />}
-            <span>{isLoading ? 'Translating...' : 'Translate'}</span>
+            Download Translation
           </motion.button>
-
-          {translatedContent && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleDownload}
-              className="px-6 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700"
-            >
-              Download Translation
-            </motion.button>
-          )}
         </div>
-
-        {/* Progress Bar */}
-        {isLoading && (
-          <div className="w-full bg-white/5 rounded-full h-2">
-            <motion.div
-              className="bg-indigo-600 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        )}
-
-        {/* Preview */}
-        {translatedContent && (
-          <div className="mt-6">
-            <h3 className="text-white font-medium mb-2">Translation Preview:</h3>
-            <div className="bg-white/5 rounded-lg p-4 max-h-96 overflow-y-auto">
-              <pre className="text-gray-300 whitespace-pre-wrap font-mono text-sm">
-                {translatedContent}
-              </pre>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 } 

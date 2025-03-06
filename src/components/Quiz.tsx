@@ -226,18 +226,18 @@ export default function Quiz() {
           Error
         </h3>
         <p className="mt-2 text-red-700 dark:text-red-300">{error}</p>
-        <button
-          onClick={resetQuiz}
+          <button
+            onClick={resetQuiz}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-        >
-          Try Again
-        </button>
-      </div>
+          >
+            Try Again
+          </button>
+        </div>
     );
   }
 
   if (showResults) {
-    return (
+  return (
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Quiz Results</h2>
         <p className="text-xl">Your score: {score} out of {quizQuestions.length}</p>
@@ -248,7 +248,7 @@ export default function Quiz() {
               <p className="text-sm mt-2">
                 Your answer: <span className={selectedAnswers[index] === q.correctAnswer ? 'text-green-500' : 'text-red-500'}>
                   {selectedAnswers[index]}
-                </span>
+          </span>
               </p>
               <p className="text-sm mt-1">Correct answer: <span className="text-green-500">{q.correctAnswer}</span></p>
               <p className="text-sm mt-2 text-gray-400">{q.explanation}</p>
@@ -273,7 +273,7 @@ export default function Quiz() {
         <h2 className="text-2xl font-bold">Quiz</h2>
         <span>Question {currentQuestionIndex + 1} of {quizQuestions.length}</span>
       </div>
-      
+
       <div className="p-4 rounded-lg bg-white/5">
         <p className="text-lg font-medium">{currentQuestion.question}</p>
         <div className="mt-4 space-y-2">
@@ -289,10 +289,10 @@ export default function Quiz() {
                     : 'bg-red-500 text-white'
                   : 'bg-white/10 hover:bg-white/20'
               }`}
-            >
-              {option}
+          >
+            {option}
             </button>
-          ))}
+        ))}
         </div>
       </div>
     </div>

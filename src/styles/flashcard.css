@@ -1,0 +1,41 @@
+/* FlashCard Styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.normal-text {
+  /* Ensure text is not mirrored when card is flipped */
+  transform: rotateY(180deg);
+  display: inline-block;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 640px) {
+  .perspective-1000 {
+    height: 200px;
+  }
+}
+
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+  .card-front {
+    background: linear-gradient(135deg, #1e40af, #7e22ce);
+  }
+  
+  .card-back {
+    background: linear-gradient(135deg, #7e22ce, #1e40af);
+  }
+} 

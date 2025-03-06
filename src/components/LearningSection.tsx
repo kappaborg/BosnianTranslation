@@ -303,7 +303,7 @@ export default function LearningSection() {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="text-lg font-medium text-white">
-                        {phrase.bosnian}
+                      {phrase.bosnian}
                       </h3>
                       <p className="text-sm text-gray-400">
                         Pronunciation: {phrase.pronunciation}

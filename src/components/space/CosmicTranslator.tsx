@@ -1,5 +1,6 @@
 'use client';
 
+import { supportedLanguages } from '@/data/languages';
 import { getFeatureSupport } from '@/utils/browserSupport';
 import { MicrophoneIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
@@ -16,12 +17,6 @@ declare global {
 interface Props {
   onTranslate: (text: string, from: string, to: string) => Promise<string>;
 }
-
-const languages = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'bs', name: 'Bosnian', nativeName: 'Bosanski' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文' },
-];
 
 export default function CosmicTranslator({ onTranslate }: Props) {
   const [inputText, setInputText] = useState('');
@@ -48,7 +43,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'bs-BA';
+      recognitionRef.current.lang = sourceLang;
 
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
@@ -73,7 +68,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
         recognitionRef.current.abort();
       }
     };
-  }, []);
+  }, [sourceLang]);
 
   const toggleListening = () => {
     if (isListening) {
@@ -96,12 +91,30 @@ export default function CosmicTranslator({ onTranslate }: Props) {
     generateParticles();
 
     try {
-      const result = await onTranslate(text, sourceLang, targetLang);
-      if (!result) {
-        throw new Error('Translation failed - empty result');
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          targetLanguage: targetLang
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Translation error:', errorData);
+        throw new Error('Translation failed');
       }
-      setOutputText(result);
-      setError(null);
+
+      const data = await response.json();
+      if (data.translatedText) {
+        setOutputText(data.translatedText);
+        setError(null);
+      } else {
+        throw new Error('No translation received');
+      }
     } catch (err) {
       console.error('Translation error:', err);
       setError('Translation failed. Please try again.');
@@ -126,13 +139,16 @@ export default function CosmicTranslator({ onTranslate }: Props) {
     setOutputText(inputText);
   };
 
-  const handleSpeak = (text: string) => {
+  const handleSpeak = (text: string, lang: string) => {
     if (!text) return;
     
-    const synth = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'bs-BA';
-    synth.speak(utterance);
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error('Error playing pronunciation:', error);
+    }
   };
 
   return (
@@ -141,7 +157,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg"
+          className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg mb-6"
         >
           <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">
             Browser Compatibility Notice
@@ -164,7 +180,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
             onChange={(e) => setSourceLang(e.target.value)}
             className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            {languages.map((lang) => (
+            {supportedLanguages.map((lang) => (
               <option key={lang.code} value={lang.code}>
                 {lang.name} ({lang.nativeName})
               </option>
@@ -187,7 +203,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
             onChange={(e) => setTargetLang(e.target.value)}
             className="w-full bg-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            {languages.map((lang) => (
+            {supportedLanguages.map((lang) => (
               <option key={lang.code} value={lang.code}>
                 {lang.name} ({lang.nativeName})
               </option>
@@ -208,7 +224,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => handleSpeak(inputText)}
+              onClick={() => handleSpeak(inputText, sourceLang)}
               className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20"
             >
               <SpeakerWaveIcon className="w-5 h-5" />
@@ -264,7 +280,7 @@ export default function CosmicTranslator({ onTranslate }: Props) {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleSpeak(outputText)}
+            onClick={() => handleSpeak(outputText, targetLang)}
             className="absolute right-2 top-2 p-2 rounded-full bg-white/10 text-white hover:bg-white/20"
           >
             <SpeakerWaveIcon className="w-5 h-5" />

@@ -440,16 +440,21 @@ export interface Location {
   panorama?: {
     url: string;
     thumbnailUrl: string;
-    hotspots?: Array<{
+    hotspots: Array<{
       pitch: number;
       yaw: number;
       text: string;
-      type?: string;
+      type: string;
     }>;
   };
   audioGuide?: {
     url: string;
     duration: string;
     transcript: string;
+  };
+  tripadvisorInfo: {
+    rating: number;
+    reviews: number;
+    link: string;
   };
 } 

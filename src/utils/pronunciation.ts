@@ -69,16 +69,9 @@ export const getBosnianVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesis
 export function setupSpeechSynthesis(text: string, lang: string = 'bs'): SpeechSynthesisUtterance {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang;
-  utterance.rate = 0.9; // Slightly slower for better pronunciation
+  utterance.rate = 0.9; // Slightly slower than normal
   utterance.pitch = 1;
-
-  // Get available voices
-  const voices = speechSynthesis.getVoices();
-  const bosnianVoice = getBosnianVoice(voices);
-  if (bosnianVoice) {
-    utterance.voice = bosnianVoice;
-  }
-
+  utterance.volume = 1;
   return utterance;
 }
 

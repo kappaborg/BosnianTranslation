@@ -3,7 +3,7 @@
 import { vocabularyWords } from '@/data/vocabulary';
 import { setupSpeechSynthesis } from '@/utils/pronunciation';
 import {
-    SpeakerWaveIcon
+  SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ interface Flashcard {
 
 interface Props {
   category: string;
-  onProgress: (cardNumber: number) => void;
+  onProgressAction: (cardNumber: number) => void;
 }
 
 const REVIEW_INTERVALS = {
@@ -33,7 +33,7 @@ const REVIEW_INTERVALS = {
   hard: 1,
 };
 
-export default function FlashcardReview({ category, onProgress }: Props) {
+export default function FlashcardReview({ category, onProgressAction }: Props) {
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -173,20 +173,20 @@ export default function FlashcardReview({ category, onProgress }: Props) {
           </div>
 
           {/* Flashcard */}
-          <div className="relative perspective-1000 mb-8">
-            <motion.div
-              className={`relative w-full aspect-[3/2] cursor-pointer ${
-                isFlipped ? 'rotate-y-180' : ''
-              }`}
+          <div className="relative mb-8">
+            <div 
+              className="relative w-full aspect-[3/2] cursor-pointer"
               onClick={() => setIsFlipped(!isFlipped)}
-              animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.6, type: 'spring' }}
             >
               {/* Front */}
-              <div
-                className={`absolute inset-0 backface-hidden ${
-                  isFlipped ? 'invisible' : ''
-                }`}
+              <motion.div
+                className="absolute inset-0 w-full h-full"
+                initial={false}
+                animate={{
+                  opacity: isFlipped ? 0 : 1,
+                  x: isFlipped ? -20 : 0,
+                }}
+                transition={{ duration: 0.3 }}
               >
                 <div className="h-full bg-white/10 rounded-xl p-8 flex flex-col items-center justify-center">
                   <h2 className="text-4xl font-bold text-white mb-4">
@@ -229,13 +229,17 @@ export default function FlashcardReview({ category, onProgress }: Props) {
                     </motion.div>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Back */}
-              <div
-                className={`absolute inset-0 backface-hidden rotate-y-180 ${
-                  !isFlipped ? 'invisible' : ''
-                }`}
+              <motion.div
+                className="absolute inset-0 w-full h-full"
+                initial={false}
+                animate={{
+                  opacity: isFlipped ? 1 : 0,
+                  x: isFlipped ? 0 : 20,
+                }}
+                transition={{ duration: 0.3 }}
               >
                 <div className="h-full bg-white/10 rounded-xl p-8 flex flex-col items-center justify-center">
                   <h2 className="text-4xl font-bold text-white mb-4">
@@ -252,8 +256,8 @@ export default function FlashcardReview({ category, onProgress }: Props) {
                     </div>
                   )}
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
 
           {/* Controls */}

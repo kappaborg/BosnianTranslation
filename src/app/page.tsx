@@ -1,148 +1,161 @@
 'use client';
 
-import CosmicTranslator from '@/components/space/CosmicTranslator';
-import GalacticProgress from '@/components/space/GalacticProgress';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { Suspense } from 'react';
 
-export default function Home() {
-  const handleTranslate = async (text: string, from: string, to: string) => {
-    try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, from, to }),
-      });
+// Dynamically import components with noSSR option
+const CosmicTranslator = dynamic(() => import('@/components/space/CosmicTranslator'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+});
 
-      if (!response.ok) {
-        throw new Error('Translation request failed');
-      }
+const FlashCard = dynamic(() => import('@/components/FlashCard'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+});
 
-      const data = await response.json();
-      return data.translatedText;
-    } catch (error) {
-      console.error('Translation error:', error);
-      throw error;
-    }
-  };
+const sampleFlashCards = [
+  {
+    bosnianWord: 'Zdravo',
+    englishTranslation: 'Hello',
+    pronunciation: 'zdrah-voh',
+    example: 'Zdravo, kako si?'
+  },
+  {
+    bosnianWord: 'Hvala',
+    englishTranslation: 'Thank you',
+    pronunciation: 'hva-la',
+    example: 'Hvala lijepo!'
+  }
+];
 
+const features = [
+  {
+    title: 'Virtual Tour',
+    description: 'Explore Bosnia through an interactive virtual tour',
+    link: '/tours',
+    icon: '🗺️'
+  },
+  {
+    title: 'Practice',
+    description: 'Improve your Bosnian with interactive exercises',
+    link: '/learning',
+    icon: '📝'
+  },
+  {
+    title: 'Flashcards',
+    description: 'Learn new words with our flashcard system',
+    link: '/learning',
+    icon: '🎴'
+  }
+];
+
+export default function HomePage() {
   return (
-    <div className="min-h-screen w-full py-24 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-7xl mx-auto space-y-12"
-      >
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="text-center space-y-6">
-          <motion.h1
-            className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8, type: 'spring' }}
-          >
-            Explore Bosnian Language
-          </motion.h1>
-          <motion.p
-            className="text-xl text-gray-300 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            Embark on a cosmic journey through language learning with our
-            interactive translation and learning platform.
-          </motion.p>
-        </div>
-
-        {/* Translator Section - Moved up for immediate access */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="w-full max-w-4xl mx-auto"
+          className="text-center mb-12"
         >
-          <CosmicTranslator onTranslate={handleTranslate} />
+          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            Learn Bosnian Language
+          </h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Translate, learn, and explore the Bosnian language with our comprehensive tools and resources.
+          </p>
         </motion.div>
 
-        {/* Progress Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GalacticProgress progress={42} total={100} label="Words Mastered" />
-          <GalacticProgress progress={7} total={30} label="Daily Streak" />
-          <GalacticProgress progress={3} total={10} label="Lessons Completed" />
-        </div>
+        {/* Translation Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-16"
+        >
+          <h2 className="text-3xl font-semibold text-center mb-8 text-white">
+            Universal Translator
+          </h2>
+          <div className="max-w-4xl mx-auto">
+            <Suspense fallback={<LoadingSpinner />}>
+              <CosmicTranslator onTranslate={async (text: string, from: string, to: string) => {
+                try {
+                  const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text, from, to }),
+                  });
+                  const data = await response.json();
+                  return data.translatedText;
+                } catch (error) {
+                  console.error('Translation error:', error);
+                  return 'Translation failed. Please try again.';
+                }
+              }} />
+            </Suspense>
+          </div>
+        </motion.section>
 
         {/* Features Grid */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-16"
         >
-          {[
-            {
-              title: 'Interactive Learning',
-              description: 'Engage with dynamic exercises and real-time feedback',
-              icon: '🎯',
-            },
-            {
-              title: 'Cultural Insights',
-              description: 'Discover the rich heritage of Bosnia and Herzegovina',
-              icon: '🏰',
-            },
-            {
-              title: 'Progress Tracking',
-              description: 'Monitor your learning journey through the cosmos',
-              icon: '📈',
-            },
-            {
-              title: 'Audio Pronunciation',
-              description: 'Master authentic Bosnian pronunciation',
-              icon: '🎙️',
-            },
-            {
-              title: 'Community',
-              description: 'Connect with fellow language explorers',
-              icon: '👥',
-            },
-            {
-              title: 'Daily Challenges',
-              description: 'Stay motivated with daily language missions',
-              icon: '⭐',
-            },
-          ].map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 hover:border-purple-500/50 transition-colors"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 * index }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <span className="text-4xl mb-4 block">{feature.icon}</span>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+          <h2 className="text-3xl font-semibold text-center mb-8">
+            Explore More Features
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Link href={feature.link} key={index}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors"
+                >
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
 
-        {/* Call to Action */}
-        <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+        {/* Sample Flashcards */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mb-16"
         >
-          <motion.button
-            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transform transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Start Your Journey
-          </motion.button>
-        </motion.div>
-      </motion.div>
+          <h2 className="text-3xl font-semibold text-center mb-8">
+            Quick Start with Common Phrases
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {sampleFlashCards.map((card, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Suspense fallback={<LoadingSpinner />}>
+                  <FlashCard {...card} />
+                </Suspense>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+      </div>
     </div>
   );
 } 

@@ -1,218 +1,329 @@
 'use client';
 
-import ModuleProgress from '@/components/ModuleProgress';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useState } from 'react';
+import DailyPhrases from '@/components/DailyPhrases';
+import DragDropQuiz from '@/components/DragDropQuiz';
+import NumbersSection from '@/components/NumbersSection';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { AnimatePresence, motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { Suspense, lazy, useState } from 'react';
 
-interface LearningModule {
+// Lazy load practice components
+const VocabularyQuiz = lazy(() => import('@/components/practice/VocabularyQuiz'));
+const FlashcardReview = lazy(() => import('@/components/practice/FlashcardReview'));
+const WordMatching = dynamic(() => import('@/components/WordMatching'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+});
+
+// Lazy load additional practice components
+const SpeakingPractice = lazy(() => import('@/components/practice/SpeakingPractice'));
+const WritingExercise = lazy(() => import('@/components/practice/WritingExercise'));
+const ListeningPractice = lazy(() => import('@/components/practice/ListeningPractice'));
+const FileTranslator = lazy(() => import('@/components/practice/FileTranslator'));
+
+interface LearningItem {
+  id: string;
+  title: string;
+  component: any;
+  icon: string;
+  description: string;
+  color?: string;
+}
+
+interface SectionType {
   id: string;
   title: string;
   description: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  icon: string;
-  color: string;
-  topics: string[];
+  items: LearningItem[];
 }
 
-const learningModules: LearningModule[] = [
+const sections: SectionType[] = [
   {
-    id: 'basics',
-    title: 'Basic Phrases',
-    description: 'Essential Bosnian phrases for everyday communication',
-    level: 'Beginner',
-    icon: '👋',
-    color: 'from-green-500 to-emerald-500',
-    topics: [
-      'Greetings and Introductions',
-      'Numbers and Counting',
-      'Days and Months',
-      'Common Questions',
-      'Basic Responses',
-    ],
+    id: 'learning',
+    title: 'Learning',
+    description: 'Master Bosnian through structured lessons',
+    items: [
+      { 
+        id: 'daily-phrases', 
+        title: 'Daily Phrases', 
+        component: DailyPhrases, 
+        icon: '📖',
+        description: 'Learn essential everyday Bosnian phrases'
+      },
+      { 
+        id: 'numbers', 
+        title: 'Numbers', 
+        component: NumbersSection, 
+        icon: '🔢',
+        description: 'Master Bosnian numbers and counting'
+      },
+      { 
+        id: 'drag-drop', 
+        title: 'Drag & Drop Quiz', 
+        component: DragDropQuiz, 
+        icon: '🎯',
+        description: 'Interactive way to learn word placement'
+      },
+    ]
   },
   {
-    id: 'grammar',
-    title: 'Grammar Fundamentals',
-    description: 'Core grammar rules and sentence structures',
-    level: 'Beginner',
-    icon: '📚',
-    color: 'from-blue-500 to-indigo-500',
-    topics: [
-      'Noun Cases',
-      'Verb Conjugation',
-      'Pronouns',
-      'Adjectives',
-      'Word Order',
-    ],
-  },
-  {
-    id: 'vocabulary',
-    title: 'Vocabulary Builder',
-    description: 'Common words and expressions',
-    level: 'Beginner',
-    icon: '📝',
-    color: 'from-purple-500 to-pink-500',
-    topics: [
-      'Family Members',
-      'Food and Drinks',
-      'Colors and Shapes',
-      'Weather and Seasons',
-      'Transportation',
-    ],
-  },
-  {
-    id: 'conversation',
-    title: 'Conversation Skills',
-    description: 'Practice dialogues and pronunciation',
-    level: 'Intermediate',
-    icon: '💬',
-    color: 'from-orange-500 to-red-500',
-    topics: [
-      'Daily Conversations',
-      'Shopping Dialogues',
-      'Restaurant Orders',
-      'Travel Situations',
-      'Business Communication',
-    ],
-  },
-  {
-    id: 'culture',
-    title: 'Cultural Insights',
-    description: 'Learn about Bosnian traditions and customs',
-    level: 'Intermediate',
-    icon: '🎭',
-    color: 'from-yellow-500 to-amber-500',
-    topics: [
-      'Traditional Customs',
-      'Festivals and Celebrations',
-      'Bosnian Cuisine',
-      'Music and Arts',
-      'Historical Sites',
-    ],
-  },
-  {
-    id: 'advanced',
-    title: 'Advanced Topics',
-    description: 'Complex grammar and idiomatic expressions',
-    level: 'Advanced',
-    icon: '🎯',
-    color: 'from-teal-500 to-cyan-500',
-    topics: [
-      'Complex Sentences',
-      'Idiomatic Expressions',
-      'Literary Texts',
-      'Academic Writing',
-      'Professional Communication',
-    ],
-  },
+    id: 'practice',
+    title: 'Practice',
+    description: 'Test and reinforce your knowledge',
+    items: [
+      { 
+        id: 'quiz', 
+        title: 'Vocabulary Quiz', 
+        component: VocabularyQuiz, 
+        icon: '📝', 
+        color: 'from-blue-500 to-indigo-500',
+        description: 'Test your vocabulary knowledge'
+      },
+      { 
+        id: 'flashcards', 
+        title: 'Flashcard Review', 
+        component: FlashcardReview, 
+        icon: '🎴', 
+        color: 'from-purple-500 to-pink-500',
+        description: 'Review words with flashcards'
+      },
+      { 
+        id: 'matching', 
+        title: 'Word Matching', 
+        component: WordMatching, 
+        icon: '🔤', 
+        color: 'from-green-500 to-emerald-500',
+        description: 'Match Bosnian words with their meanings'
+      },
+      { 
+        id: 'speaking', 
+        title: 'Speaking Practice', 
+        component: SpeakingPractice, 
+        icon: '🗣️', 
+        color: 'from-yellow-500 to-orange-500',
+        description: 'Practice pronunciation and speaking'
+      },
+      { 
+        id: 'writing', 
+        title: 'Writing Exercise', 
+        component: WritingExercise, 
+        icon: '✍️', 
+        color: 'from-teal-500 to-emerald-500',
+        description: 'Practice writing in Bosnian'
+      },
+      { 
+        id: 'listening', 
+        title: 'Listening Practice', 
+        component: ListeningPractice, 
+        icon: '👂', 
+        color: 'from-rose-500 to-pink-500',
+        description: 'Improve your listening skills'
+      },
+      { 
+        id: 'file-translator', 
+        title: 'File Translator', 
+        component: FileTranslator, 
+        icon: '📄', 
+        color: 'from-cyan-500 to-blue-500',
+        description: 'Translate text files to Bosnian'
+      }
+    ]
+  }
 ];
 
 export default function LearningPage() {
-  const [selectedLevel, setSelectedLevel] = useState<string>('all');
-  const [userId] = useState(() => {
-    // Generate a random user ID if not exists
-    const stored = localStorage.getItem('userId');
-    if (stored) return stored;
-    const newId = Math.random().toString(36).substring(2);
-    localStorage.setItem('userId', newId);
-    return newId;
-  });
+  const [activeSection, setActiveSection] = useState('daily-phrases');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [score, setScore] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [showComponent, setShowComponent] = useState(true);
 
-  const filteredModules = selectedLevel === 'all'
-    ? learningModules
-    : learningModules.filter(module => module.level.toLowerCase() === selectedLevel.toLowerCase());
+  const handleModeChange = (newMode: string) => {
+    setShowComponent(false);
+    setTimeout(() => {
+      setActiveSection(newMode);
+      setScore(0);
+      setCurrentQuestion(1);
+      setShowComponent(true);
+    }, 300);
+  };
+
+  const handleScoreUpdate = (newScore: number) => {
+    setScore(newScore);
+  };
+
+  const handleQuestionUpdate = (questionNumber: number) => {
+    setCurrentQuestion(questionNumber);
+  };
+
+  const ActiveComponent = [...sections[0].items, ...sections[1].items].find(
+    item => item.id === activeSection
+  )?.component;
 
   return (
-    <div className="min-h-screen w-full py-24 px-4">
+    <div className="min-h-screen w-full py-16 sm:py-24 px-4 bg-gradient-to-b from-gray-900 to-black">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="max-w-7xl mx-auto space-y-12"
+        className="max-w-7xl mx-auto space-y-8"
       >
-        <div className="text-center space-y-6">
+        <div className="text-center space-y-4">
           <motion.h1
-            className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8, type: 'spring' }}
           >
-            Learning Journey
+            Learn & Practice Bosnian
           </motion.h1>
           <motion.p
-            className="text-xl text-gray-300 max-w-2xl mx-auto"
+            className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            Master Bosnian through interactive lessons and exercises
+            Choose a mode to improve your Bosnian language skills
           </motion.p>
         </div>
 
-        {/* Progress Tracking */}
-        <ModuleProgress userId={userId} />
-
-        {/* Level Filter */}
-        <div className="flex justify-center space-x-4">
-          {['all', 'Beginner', 'Intermediate', 'Advanced'].map((level) => (
-            <button
-              key={level}
-              onClick={() => setSelectedLevel(level)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedLevel === level
-                  ? 'bg-white text-black'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              {level.charAt(0).toUpperCase() + level.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Learning Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredModules.map((module, index) => (
-            <motion.div
-              key={module.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Link href={`/learning/${module.id}`}>
-                <motion.div
-                  className={`bg-gradient-to-r ${module.color} p-1 rounded-xl hover:scale-105 transition-transform`}
+        {/* Mode Selection */}
+        {sections.map((section) => (
+          <motion.div
+            key={section.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-semibold text-white">
+                {section.title}
+              </h2>
+              <p className="text-gray-400">{section.description}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {section.items.map((item) => (
+                <motion.button
+                  key={item.id}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => handleModeChange(item.id)}
+                  className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
+                    activeSection === item.id
+                      ? `bg-gradient-to-r ${item.color || 'from-purple-500 to-pink-500'} text-white shadow-lg`
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
                 >
-                  <div className="bg-black rounded-lg p-6 h-full">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-4xl mb-4 block">{module.icon}</span>
-                        <h3 className="text-xl font-bold text-white mb-2">{module.title}</h3>
-                        <p className="text-gray-400 text-sm mb-4">{module.description}</p>
-                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white">
-                          {module.level}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium text-white mb-2">Topics covered:</h4>
-                      <ul className="text-sm text-gray-400 space-y-1">
-                        {module.topics.map((topic, i) => (
-                          <li key={i} className="flex items-center">
-                            <span className="mr-2">•</span>
-                            {topic}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
+                  <span className="text-3xl mb-3">{item.icon}</span>
+                  <span className="text-lg font-medium text-center mb-2">{item.title}</span>
+                  <p className="text-sm text-center opacity-80">{item.description}</p>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+
+        {/* Category Selection */}
+        {(activeSection === 'quiz' || activeSection === 'flashcards' || 
+          activeSection === 'speaking' || activeSection === 'writing' || 
+          activeSection === 'listening') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-8 space-y-4"
+          >
+            <h2 className="text-xl sm:text-2xl font-semibold text-white text-center mb-6">
+              Select Category:
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 px-2">
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'greetings', label: 'Greetings' },
+                { id: 'phrases', label: 'Common Phrases' },
+                { id: 'questions', label: 'Questions' },
+                { id: 'food', label: 'Food And Drink' },
+                { id: 'weather', label: 'Weather' },
+                { id: 'time', label: 'Time' },
+                { id: 'family', label: 'Family' },
+              ].map((category) => (
+                <motion.button
+                  key={category.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`p-3 sm:p-4 rounded-lg transition-all ${
+                    selectedCategory === category.id
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  {category.label}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Active Component */}
+        {showComponent && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection + selectedCategory}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-8 bg-white/5 backdrop-blur-lg rounded-xl p-6"
+            >
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <LoadingSpinner />
+                </div>
+              }>
+                {ActiveComponent && (
+                  activeSection === 'quiz' ? (
+                    <VocabularyQuiz
+                      category={selectedCategory}
+                      onScoreUpdate={handleScoreUpdate}
+                      onQuestionUpdate={handleQuestionUpdate}
+                    />
+                  ) : activeSection === 'flashcards' ? (
+                    <FlashcardReview
+                      category={selectedCategory}
+                      onProgressAction={handleQuestionUpdate}
+                    />
+                  ) : activeSection === 'matching' ? (
+                    <WordMatching />
+                  ) : activeSection === 'speaking' ? (
+                    <SpeakingPractice
+                      category={selectedCategory}
+                      onProgressAction={handleQuestionUpdate}
+                    />
+                  ) : activeSection === 'writing' ? (
+                    <WritingExercise
+                      category={selectedCategory}
+                      onScoreUpdate={handleScoreUpdate}
+                    />
+                  ) : activeSection === 'listening' ? (
+                    <ListeningPractice
+                      category={selectedCategory}
+                      onScoreUpdate={handleScoreUpdate}
+                    />
+                  ) : activeSection === 'file-translator' ? (
+                    <FileTranslator
+                      onProgressAction={handleQuestionUpdate}
+                    />
+                  ) : (
+                    <ActiveComponent />
+                  )
+                )}
+              </Suspense>
             </motion.div>
-          ))}
-        </div>
+          </AnimatePresence>
+        )}
       </motion.div>
     </div>
   );

@@ -1,4 +1,6 @@
-type SupportedLanguage = 'en' | 'bs' | 'zh';
+import { Language } from '@/data/languages';
+
+type SupportedLanguage = Language['code'];
 
 interface TranslationResponse {
   responseData: {
@@ -131,27 +133,63 @@ async function translateChunk(
   text: string,
   from: SupportedLanguage,
   to: SupportedLanguage,
-  retries: number = 5
+  retries: number = 3
 ): Promise<string> {
   let lastError: Error | null = null;
-  const baseDelay = 1000; // 1 second base delay
+  const baseDelay = 1000;
 
   for (let i = 0; i < retries; i++) {
     try {
-      // Exponential backoff with initial delay
       if (i > 0) {
         const delay = baseDelay * Math.pow(2, i - 1);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      // Try Google Translate API first
+      // Try Azure Translator API
+      const apiKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY;
+      const region = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_REGION;
+
+      if (apiKey && region) {
+        try {
+          const response = await fetch(
+            `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${from}&to=${to}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': apiKey,
+                'Ocp-Apim-Subscription-Region': region,
+              },
+              body: JSON.stringify([{ text }]),
+            }
+          );
+
+          if (!response.ok) {
+            console.error('Azure Translation API error:', response.status);
+            throw new Error(`Azure Translation API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          if (data[0]?.translations?.[0]?.text) {
+            return data[0].translations[0].text;
+          }
+        } catch (error) {
+          console.warn('Azure Translate failed:', error);
+          console.warn('Falling back to Google Translate');
+        }
+      }
+
+      // Try Google Translate API as fallback
       try {
-        const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -160,7 +198,8 @@ async function translateChunk(
           }
         }
       } catch (error) {
-        console.warn('Google Translate failed, falling back to MyMemory');
+        console.warn('Google Translate failed:', error);
+        console.warn('Falling back to MyMemory');
       }
 
       // Fallback to MyMemory API
@@ -173,7 +212,7 @@ async function translateChunk(
 
       const response = await fetch(`https://api.mymemory.translated.net/get?${queryParams}`, {
         method: 'GET',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
@@ -185,7 +224,7 @@ async function translateChunk(
       }
 
       const data: TranslationResponse = await response.json();
-      
+
       if (!data.responseData?.translatedText) {
         throw new Error('Empty translation received');
       }

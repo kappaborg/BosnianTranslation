@@ -19,39 +19,51 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex items-center space-x-4">
-            {!isHome && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link 
-                  href="/"
-                  className="p-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white soft:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <HomeIcon className="w-6 h-6" />
-                </Link>
-              </motion.div>
-            )}
+          <div className="flex items-center">
             <motion.div 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              className="flex items-center"
             >
-              <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-purple-600 hover:to-blue-600 transition-all duration-300">
+              <Link href={isHome ? "#" : "/"} className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-purple-600 hover:to-blue-600 transition-all duration-300">
                 BosniaTrans
               </Link>
             </motion.div>
           </div>
           
-          <div className="flex items-center space-x-4 md:space-x-8">
+          <div className="flex items-center space-x-2 sm:space-x-4 md:space-x-8">
+            {!isHome && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden sm:flex items-center"
+              >
+                <Link 
+                  href="/"
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 ${
+                    pathname === '/' 
+                      ? 'bg-blue-600/20 text-blue-400' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <HomeIcon className="w-5 h-5" />
+                  <span>Home</span>
+                </Link>
+              </motion.div>
+            )}
+
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="hidden sm:block"
             >
               <Link 
-                href="/learn" 
-                className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+                href="/learning" 
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  pathname === '/learning' 
+                    ? 'bg-blue-600/20 text-blue-400' 
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
               >
                 Learn Bosnian
               </Link>
@@ -64,7 +76,11 @@ export default function Navigation() {
             >
               <Link 
                 href="/culture" 
-                className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  pathname === '/culture' 
+                    ? 'bg-blue-600/20 text-blue-400' 
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
               >
                 Culture
               </Link>
@@ -76,10 +92,14 @@ export default function Navigation() {
               className="hidden sm:block"
             >
               <Link 
-                href="/translation" 
-                className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+                href="/tours" 
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  pathname === '/tours' 
+                    ? 'bg-blue-600/20 text-blue-400' 
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
               >
-                Translate
+                Virtual Tour
               </Link>
             </motion.div>
             
@@ -90,7 +110,6 @@ export default function Navigation() {
               whileTap={{ scale: 0.95 }}
               className="sm:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               onClick={() => {
-                // Toggle mobile menu
                 document.querySelector('.mobile-menu')?.classList.toggle('hidden');
               }}
             >
@@ -103,24 +122,45 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         <div className="mobile-menu hidden sm:hidden pb-4">
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-3 px-2 py-3 bg-white/5 rounded-lg mt-2">
+            {!isHome && (
+              <Link 
+                href="/"
+                className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center space-x-2"
+              >
+                <HomeIcon className="w-5 h-5" />
+                <span>Home</span>
+              </Link>
+            )}
             <Link 
-              href="/learn"
-              className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+              href="/learning"
+              className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                pathname === '/learning' 
+                  ? 'bg-blue-600/20 text-blue-400' 
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
             >
               Learn Bosnian
             </Link>
             <Link 
               href="/culture"
-              className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+              className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                pathname === '/culture' 
+                  ? 'bg-blue-600/20 text-blue-400' 
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
             >
               Culture
             </Link>
             <Link 
-              href="/translation"
-              className="text-gray-700 dark:text-gray-200 soft:text-gray-600 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+              href="/tours"
+              className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                pathname === '/tours' 
+                  ? 'bg-blue-600/20 text-blue-400' 
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
             >
-              Translate
+              Virtual Tour
             </Link>
           </div>
         </div>
