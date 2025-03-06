@@ -2,15 +2,8 @@
 
 import { TourLocation } from '@/data/tourLocations';
 import { ArrowsPointingOutIcon, ChevronLeftIcon, ChevronRightIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useState } from 'react';
-
-// Dynamically import Pannellum with no SSR
-const Pannellum = dynamic(
-  () => import('pannellum-react').then(mod => ({ default: mod.Pannellum })),
-  { ssr: false }
-);
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   location: TourLocation;
@@ -19,6 +12,34 @@ interface Props {
 export default function VirtualTour({ location }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPanorama, setShowPanorama] = useState(false);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [viewerInstance, setViewerInstance] = useState<any>(null);
+
+  useEffect(() => {
+    if (showPanorama && viewerRef.current && !viewerInstance) {
+      import('pannellum').then((pannellum) => {
+        const viewer = pannellum.viewer(viewerRef.current!, {
+          type: 'equirectangular',
+          panorama: location.images.panorama,
+          autoLoad: true,
+          compass: true,
+          hotSpots: [],
+          sceneFadeDuration: 1000,
+          hfov: 110,
+          pitch: 10,
+          yaw: 180
+        });
+        setViewerInstance(viewer);
+      });
+    }
+
+    return () => {
+      if (viewerInstance) {
+        viewerInstance.destroy();
+        setViewerInstance(null);
+      }
+    };
+  }, [showPanorama, location.images.panorama, viewerInstance]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -36,21 +57,7 @@ export default function VirtualTour({ location }: Props) {
     <div className="space-y-6">
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
         {showPanorama ? (
-          <div className="absolute inset-0">
-            <Pannellum
-              width="100%"
-              height="100%"
-              image={location.images.panorama}
-              pitch={10}
-              yaw={180}
-              hfov={110}
-              autoLoad
-              onLoad={() => {
-                console.log('panorama loaded');
-              }}
-              hotspotDebug={false}
-            />
-          </div>
+          <div ref={viewerRef} className="absolute inset-0" />
         ) : (
           <div className="relative h-full w-full">
             <Image

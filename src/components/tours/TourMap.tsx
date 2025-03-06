@@ -4,24 +4,24 @@ import { TourLocation } from '@/data/tourLocations';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
-// Dynamically import Leaflet with no SSR
+// Dynamically import Leaflet components with no SSR
 const Map = dynamic(
-  () => import('react-leaflet').then((mod) => ({ default: mod.MapContainer })),
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
 );
 
 const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => ({ default: mod.TileLayer })),
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false }
 );
 
 const Marker = dynamic(
-  () => import('react-leaflet').then((mod) => ({ default: mod.Marker })),
+  () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false }
 );
 
 const Popup = dynamic(
-  () => import('react-leaflet').then((mod) => ({ default: mod.Popup })),
+  () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
 );
 
@@ -33,64 +33,15 @@ interface Props {
 
 export default function TourMap({ locations, selectedLocation, onLocationSelect }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [icons, setIcons] = useState<Record<TourLocation['locationType'], any>>({});
+  const [L, setL] = useState<any>(null);
 
   useEffect(() => {
     const initializeLeaflet = async () => {
       try {
-        // Import Leaflet and its CSS
         const L = (await import('leaflet')).default;
         await import('leaflet/dist/leaflet.css');
-        
+        setL(L);
         setMounted(true);
-
-        // Create icons for each location type after component mounts
-        const createCustomIcon = (type: TourLocation['locationType']) => {
-          const getIconColor = (type: TourLocation['locationType']) => {
-            switch (type) {
-              case 'bridge':
-                return '#4F46E5';
-              case 'bazaar':
-                return '#DC2626';
-              case 'spring':
-                return '#059669';
-              case 'fortress':
-                return '#9333EA';
-              case 'waterfall':
-                return '#2563EB';
-              case 'monastery':
-                return '#D97706';
-              default:
-                return '#6B7280';
-            }
-          };
-
-          const color = getIconColor(type);
-          const size = 32;
-          
-          return L.divIcon({
-            html: `<div class="custom-icon-wrapper" style="color: ${color}">
-              <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                ${getIconPath(type)}
-              </svg>
-            </div>`,
-            className: 'custom-icon',
-            iconSize: [size, size],
-            iconAnchor: [size/2, size],
-            popupAnchor: [0, -size]
-          });
-        };
-
-        const iconTypes: TourLocation['locationType'][] = [
-          'bridge', 'bazaar', 'spring', 'fortress', 'waterfall', 'monastery'
-        ];
-        
-        const newIcons = iconTypes.reduce((acc, type) => ({
-          ...acc,
-          [type]: createCustomIcon(type)
-        }), {});
-
-        setIcons(newIcons);
       } catch (error) {
         console.error('Error initializing Leaflet:', error);
       }
@@ -98,6 +49,44 @@ export default function TourMap({ locations, selectedLocation, onLocationSelect 
 
     initializeLeaflet();
   }, []);
+
+  const createCustomIcon = (type: TourLocation['locationType']) => {
+    if (!L) return null;
+
+    const getIconColor = (type: TourLocation['locationType']) => {
+      switch (type) {
+        case 'bridge':
+          return '#4F46E5';
+        case 'bazaar':
+          return '#DC2626';
+        case 'spring':
+          return '#059669';
+        case 'fortress':
+          return '#9333EA';
+        case 'waterfall':
+          return '#2563EB';
+        case 'monastery':
+          return '#D97706';
+        default:
+          return '#6B7280';
+      }
+    };
+
+    const color = getIconColor(type);
+    const size = 32;
+    
+    return L.divIcon({
+      html: `<div class="custom-icon-wrapper" style="color: ${color}">
+        <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          ${getIconPath(type)}
+        </svg>
+      </div>`,
+      className: 'custom-icon',
+      iconSize: [size, size],
+      iconAnchor: [size/2, size],
+      popupAnchor: [0, -size]
+    });
+  };
 
   const getIconPath = (type: TourLocation['locationType']) => {
     switch (type) {
@@ -118,7 +107,7 @@ export default function TourMap({ locations, selectedLocation, onLocationSelect 
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || !L) return null;
 
   const center = selectedLocation
     ? [selectedLocation.coordinates.lat, selectedLocation.coordinates.lng]
@@ -135,23 +124,28 @@ export default function TourMap({ locations, selectedLocation, onLocationSelect 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {locations.map((location) => (
-          <Marker
-            key={location.id}
-            position={[location.coordinates.lat, location.coordinates.lng]}
-            icon={icons[location.locationType]}
-            eventHandlers={{
-              click: () => onLocationSelect(location),
-            }}
-          >
-            <Popup>
-              <div className="p-2">
-                <h3 className="font-semibold">{location.name}</h3>
-                <p className="text-sm text-gray-600">{location.description}</p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {locations.map((location) => {
+          const icon = createCustomIcon(location.locationType);
+          if (!icon) return null;
+
+          return (
+            <Marker
+              key={location.id}
+              position={[location.coordinates.lat, location.coordinates.lng]}
+              icon={icon}
+              eventHandlers={{
+                click: () => onLocationSelect(location),
+              }}
+            >
+              <Popup>
+                <div className="p-2">
+                  <h3 className="font-semibold">{location.name}</h3>
+                  <p className="text-sm text-gray-600">{location.description}</p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
       </Map>
     </div>
   );
