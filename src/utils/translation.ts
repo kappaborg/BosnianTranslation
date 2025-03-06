@@ -78,55 +78,23 @@ export async function extractTextFromDOCX(file: File): Promise<string> {
   }
 }
 
-function splitTextIntoChunks(text: string, maxChunkSize: number = 200): string[] {
-  // First split by paragraphs to preserve structure
-  const paragraphs = text.split(/\n\s*\n/);
+function splitTextIntoChunks(text: string): string[] {
+  const maxChunkLength = 500;
   const chunks: string[] = [];
-  
-  for (const paragraph of paragraphs) {
-    // Skip empty paragraphs
-    if (!paragraph.trim()) continue;
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  let currentChunk = '';
 
-    // If paragraph is small enough, add it directly
-    if (paragraph.length <= maxChunkSize) {
-      chunks.push(paragraph.trim());
-      continue;
+  for (const sentence of sentences) {
+    if ((currentChunk + sentence).length > maxChunkLength) {
+      if (currentChunk) chunks.push(currentChunk.trim());
+      currentChunk = sentence;
+    } else {
+      currentChunk += (currentChunk ? ' ' : '') + sentence;
     }
-
-    // Split into sentences
-    const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
-    let currentChunk = '';
-
-    for (const sentence of sentences) {
-      const trimmedSentence = sentence.trim();
-      
-      // If single sentence fits in chunk
-      if (trimmedSentence.length <= maxChunkSize) {
-        if (currentChunk.length + trimmedSentence.length > maxChunkSize) {
-          chunks.push(currentChunk.trim());
-          currentChunk = trimmedSentence;
-        } else {
-          currentChunk += (currentChunk ? ' ' : '') + trimmedSentence;
-        }
-        continue;
-      }
-
-      // Handle long sentences
-      const words = trimmedSentence.split(/\s+/);
-      for (const word of words) {
-        if (currentChunk.length + word.length > maxChunkSize) {
-          if (currentChunk) chunks.push(currentChunk.trim());
-          currentChunk = word;
-        } else {
-          currentChunk += (currentChunk ? ' ' : '') + word;
-        }
-      }
-    }
-
-    if (currentChunk) chunks.push(currentChunk.trim());
   }
 
-  return chunks.filter(chunk => chunk.length > 0);
+  if (currentChunk) chunks.push(currentChunk.trim());
+  return chunks;
 }
 
 async function translateChunk(
@@ -145,91 +113,28 @@ async function translateChunk(
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      // Try Azure Translator API
-      const apiKey = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_KEY;
-      const region = process.env.NEXT_PUBLIC_AZURE_TRANSLATOR_REGION;
-
-      if (apiKey && region) {
-        try {
-          const response = await fetch(
-            `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${from}&to=${to}`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Ocp-Apim-Subscription-Key': apiKey,
-                'Ocp-Apim-Subscription-Region': region,
-              },
-              body: JSON.stringify([{ text }]),
-            }
-          );
-
-          if (!response.ok) {
-            console.error('Azure Translation API error:', response.status);
-            throw new Error(`Azure Translation API error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data[0]?.translations?.[0]?.text) {
-            return data[0].translations[0].text;
-          }
-        } catch (error) {
-          console.warn('Azure Translate failed:', error);
-          console.warn('Falling back to Google Translate');
-        }
-      }
-
-      // Try Google Translate API as fallback
-      try {
-        const response = await fetch(
-          `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`,
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data[0] && data[0][0] && data[0][0][0]) {
-            return data[0][0][0];
-          }
-        }
-      } catch (error) {
-        console.warn('Google Translate failed:', error);
-        console.warn('Falling back to MyMemory');
-      }
-
-      // Fallback to MyMemory API
-      const queryParams = new URLSearchParams({
-        q: text,
-        langpair: `${from}|${to}`,
-        de: 'ozansmet@gmail.com',
-        mt: '1',
-      });
-
-      const response = await fetch(`https://api.mymemory.translated.net/get?${queryParams}`, {
-        method: 'GET',
+      const response = await fetch('/api/translate', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        cache: 'no-store',
+        body: JSON.stringify({
+          text,
+          targetLanguage: to,
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`Translation API error: ${response.statusText}`);
       }
 
-      const data: TranslationResponse = await response.json();
-
-      if (!data.responseData?.translatedText) {
+      const data = await response.json();
+      
+      if (!data.translatedText) {
         throw new Error('Empty translation received');
       }
 
-      return data.responseData.translatedText;
+      return data.translatedText;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
       console.warn(`Translation attempt ${i + 1} failed:`, lastError.message);

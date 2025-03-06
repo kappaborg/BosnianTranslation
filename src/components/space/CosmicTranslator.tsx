@@ -98,13 +98,11 @@ export default function CosmicTranslator({ onTranslate }: Props) {
         },
         body: JSON.stringify({
           text,
-          targetLanguage: targetLang
-        })
+          targetLanguage: targetLang,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Translation error:', errorData);
         throw new Error('Translation failed');
       }
 

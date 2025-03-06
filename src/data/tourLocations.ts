@@ -21,8 +21,8 @@ export interface TourLocation {
 export const tourLocations: TourLocation[] = [
   {
     id: 'mostar',
-    name: 'Stari Most (Mostar Köprüsü)',
-    description: 'UNESCO Dünya Mirası Listesi\'nde yer alan, 16. yüzyıldan kalma ikonik köprü.',
+    name: 'Stari Most (Old Bridge)',
+    description: 'Iconic 16th-century bridge listed as a UNESCO World Heritage site.',
     coordinates: {
       lat: 43.337,
       lng: 17.815
@@ -35,7 +35,7 @@ export const tourLocations: TourLocation[] = [
         '/images/tours/mostar/gallery/3.jpg',
         '/images/tours/mostar/gallery/4.jpg'
       ],
-      panorama: '/images/tours/mostar/panorama/360.jpg'
+      panorama: '/images/tours/mostar/360/panorama.jpg'
     },
     historicalInfo: 'Built in 1566 during the Ottoman period, the Old Bridge stood for 427 years until it was destroyed in 1993 during the Bosnian War. It was reconstructed and reopened in 2004, becoming a symbol of reconciliation and international cooperation.',
     culturalSignificance: 'The bridge is considered one of the finest examples of Islamic architecture in the Balkans and has been a UNESCO World Heritage site since 2005. It\'s also famous for its traditional diving competitions where local divers jump from the bridge into the Neretva River.',
@@ -52,7 +52,7 @@ export const tourLocations: TourLocation[] = [
   {
     id: 'bascarsija',
     name: 'Baščaršija',
-    description: 'Baščaršija is Sarajevo\'s old bazaar and the historical and cultural center of the city. Built in the 15th century, it is a well-preserved example of oriental architecture.',
+    description: 'Sarajevo\'s old bazaar and the historical and cultural center of the city. Built in the 15th century, it is a well-preserved example of oriental architecture.',
     coordinates: {
       lat: 43.859907,
       lng: 18.431502
@@ -60,10 +60,12 @@ export const tourLocations: TourLocation[] = [
     locationType: 'bazaar',
     images: {
       gallery: [
-        "/images/tours/bascarsija/gallery/sebilj_1.jpg",
-        "/images/tours/bascarsija/gallery/sebilj_2.jpg"
+        '/images/tours/bascarsija/gallery/1.jpg',
+        '/images/tours/bascarsija/gallery/2.jpg',
+        '/images/tours/bascarsija/gallery/3.jpg',
+        '/images/tours/bascarsija/gallery/4.jpg'
       ],
-      panorama: "/images/tours/bascarsija/360/bascarsija_panorama.jpg"
+      panorama: '/images/tours/bascarsija/360/panorama.jpg'
     },
     historicalInfo: 'Founded in 1462 by Isa-beg Isaković, Baščaršija was Sarajevo\'s main trading center during Ottoman rule. The name \'Baščaršija\' comes from the Turkish words \'baş\' (head or main) and \'çarşı\' (bazaar or market).',
     culturalSignificance: 'As the historical, cultural, and economic heart of Sarajevo, Baščaršija represents the city\'s Ottoman heritage and multicultural spirit. The area is famous for its unique architectural style, traditional crafts, and the iconic Sebilj wooden fountain.',
@@ -79,8 +81,8 @@ export const tourLocations: TourLocation[] = [
   },
   {
     id: 'vrelo-bosne',
-    name: 'Vrelo Bosne',
-    description: 'Saraybosna\'nın güneybatısında yer alan doğal park ve Bosna Nehri\'nin kaynağı.',
+    name: 'Vrelo Bosne (Spring of Bosna)',
+    description: 'Natural park and source of the Bosna River located in the southwestern part of Sarajevo.',
     coordinates: {
       lat: 43.823,
       lng: 18.269
@@ -93,7 +95,7 @@ export const tourLocations: TourLocation[] = [
         '/images/tours/vrelo-bosne/gallery/3.jpg',
         '/images/tours/vrelo-bosne/gallery/4.jpg'
       ],
-      panorama: '/images/tours/vrelo-bosne/panorama/360.jpg'
+      panorama: '/images/tours/vrelo-bosne/360/panorama.jpg'
     },
     historicalInfo: 'The springs have been a source of water for Sarajevo since Roman times and were particularly developed during the Austro-Hungarian period. The area was first mentioned in documents from the 16th century and became a popular recreational spot during the Austro-Hungarian rule in the late 19th century.',
     culturalSignificance: 'Vrelo Bosne represents the natural heritage of Bosnia and Herzegovina and serves as a symbol of environmental preservation. The park features traditional horse-drawn carriage rides along the Grande Allee, a 3.5 km tree-lined avenue leading to the springs.',
@@ -111,8 +113,8 @@ export const tourLocations: TourLocation[] = [
   },
   {
     id: 'travnik',
-    name: 'Travnik Kalesi',
-    description: 'Orta Çağ\'dan kalma etkileyici kale ve tarihi Osmanlı şehri.',
+    name: 'Travnik Fortress',
+    description: 'Impressive medieval fortress and historic Ottoman city.',
     coordinates: {
       lat: 44.226,
       lng: 17.667
@@ -125,7 +127,7 @@ export const tourLocations: TourLocation[] = [
         '/images/tours/travnik/gallery/3.jpg',
         '/images/tours/travnik/gallery/4.jpg'
       ],
-      panorama: '/images/tours/travnik/panorama/360.jpg'
+      panorama: '/images/tours/travnik/360/panorama.jpg'
     },
     historicalInfo: 'Travnik served as the capital of the Ottoman province of Bosnia from 1699 to 1850 and was home to 77 Bosnian viziers. The city\'s fortress, dating back to medieval times, was expanded during Ottoman rule and played a crucial role in defending central Bosnia. The town gained additional significance as the birthplace of Nobel Prize-winning author Ivo Andrić.',
     culturalSignificance: 'Known for its unique architectural heritage that blends Ottoman and Austro-Hungarian styles, Travnik represents a crossroads of Eastern and Western influences. The city is famous for its traditional crafts, including the renowned Travnik cheese, and its historical role as an administrative and cultural center during Ottoman rule.',
@@ -143,8 +145,8 @@ export const tourLocations: TourLocation[] = [
   },
   {
     id: 'jajce',
-    name: 'Jajce Şelalesi',
-    description: 'Pliva Nehri\'nin 21 metre yükseklikten döküldüğü etkileyici şelale ve tarihi şehir.',
+    name: 'Jajce Waterfall',
+    description: 'Impressive waterfall where the Pliva River drops 21 meters in the historic city center.',
     coordinates: {
       lat: 44.342,
       lng: 17.271
@@ -157,7 +159,7 @@ export const tourLocations: TourLocation[] = [
         '/images/tours/jajce/gallery/3.jpg',
         '/images/tours/jajce/gallery/4.jpg'
       ],
-      panorama: '/images/tours/jajce/panorama/360.jpg'
+      panorama: '/images/tours/jajce/360/panorama.jpg'
     },
     historicalInfo: 'Founded in the 14th century, Jajce was the last Bosnian royal city and the place where the medieval Bosnian kingdom fell to the Ottoman Empire in 1463.',
     culturalSignificance: 'Known for its unique waterfall in the city center and the AVNOJ museum, marking the foundation of Yugoslavia.',
@@ -175,8 +177,8 @@ export const tourLocations: TourLocation[] = [
   },
   {
     id: 'blagaj',
-    name: 'Blagaj Tekkesi',
-    description: 'Buna Nehri kaynağında yer alan 16. yüzyıldan kalma derviş tekkesi.',
+    name: 'Blagaj Tekke',
+    description: 'A 16th-century Dervish monastery located at the source of the Buna River.',
     coordinates: {
       lat: 43.256,
       lng: 17.885
@@ -189,7 +191,7 @@ export const tourLocations: TourLocation[] = [
         '/images/tours/blagaj/gallery/3.jpg',
         '/images/tours/blagaj/gallery/4.jpg'
       ],
-      panorama: '/images/tours/blagaj/panorama/360.jpg'
+      panorama: '/images/tours/blagaj/360/panorama.jpg'
     },
     historicalInfo: 'The tekke was built in the 16th century and has been a center of Sufi spiritual practice for centuries.',
     culturalSignificance: 'Represents the meeting of Ottoman architecture with the natural beauty of Herzegovina, and the spiritual heritage of Sufism in Bosnia.',

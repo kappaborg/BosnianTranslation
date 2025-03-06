@@ -4,6 +4,7 @@ import { TourLocation } from '@/data/tourLocations';
 import { ArrowsPointingOutIcon, ChevronLeftIcon, ChevronRightIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface Props {
   location: TourLocation;
@@ -12,30 +13,74 @@ interface Props {
 export default function VirtualTour({ location }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPanorama, setShowPanorama] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const [viewerInstance, setViewerInstance] = useState<any>(null);
 
+  // Preload panorama image
+  useEffect(() => {
+    const preloadImage = () => {
+      const img = document.createElement('img');
+      img.src = location.images.panorama;
+    };
+    preloadImage();
+  }, [location.images.panorama]);
+
   useEffect(() => {
     if (showPanorama && viewerRef.current && !viewerInstance) {
-      import('pannellum').then((mod) => {
-        const viewer = mod.default.viewer(viewerRef.current!, {
-          type: 'equirectangular',
-          panorama: location.images.panorama,
-          autoLoad: true,
-          compass: true,
-          hotSpots: [],
-          sceneFadeDuration: 1000,
-          hfov: 110,
-          pitch: 10,
-          yaw: 180
-        });
-        setViewerInstance(viewer);
-      });
+      setIsLoading(true);
+      setError(null);
+
+      const initPanorama = async () => {
+        try {
+          const mod = await import('pannellum');
+          const viewer = mod.default.viewer(viewerRef.current!, {
+            type: 'equirectangular',
+            panorama: location.images.panorama,
+            autoLoad: true,
+            autoRotate: -2,
+            compass: true,
+            showControls: true,
+            showFullscreenCtrl: true,
+            showZoomCtrl: true,
+            mouseZoom: true,
+            orientationOnByDefault: true,
+            hotSpotDebug: false,
+            sceneFadeDuration: 1000,
+            hfov: 110,
+            pitch: 10,
+            yaw: 180,
+            crossOrigin: 'anonymous',
+            friction: 0.8,
+            onLoad: () => {
+              setIsLoading(false);
+              console.log('Panorama loaded successfully');
+            },
+            onError: (errorMsg: string) => {
+              console.error('Panorama error:', errorMsg);
+              setError(errorMsg || 'Failed to load panorama');
+              setIsLoading(false);
+            }
+          });
+          setViewerInstance(viewer);
+        } catch (err) {
+          console.error('Failed to initialize panorama:', err);
+          setError('Failed to initialize panorama viewer');
+          setIsLoading(false);
+        }
+      };
+
+      initPanorama();
     }
 
     return () => {
       if (viewerInstance) {
-        viewerInstance.destroy();
+        try {
+          viewerInstance.destroy();
+        } catch (err) {
+          console.error('Error destroying panorama viewer:', err);
+        }
         setViewerInstance(null);
       }
     };
@@ -57,12 +102,32 @@ export default function VirtualTour({ location }: Props) {
     <div className="space-y-6">
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
         {showPanorama ? (
-          <div ref={viewerRef} className="absolute inset-0" />
+          <>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <LoadingSpinner />
+              </div>
+            )}
+            {error && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <div className="text-center text-white">
+                  <p className="text-red-400 mb-2">Error loading panorama</p>
+                  <button
+                    onClick={() => setShowPanorama(false)}
+                    className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20"
+                  >
+                    Return to Gallery
+                  </button>
+                </div>
+              </div>
+            )}
+            <div ref={viewerRef} className="absolute inset-0" />
+          </>
         ) : (
           <div className="relative h-full w-full">
             <Image
               src={location.images.gallery[currentImageIndex]}
-              alt={`${location.name} - Fotoğraf ${currentImageIndex + 1}`}
+              alt={`${location.name} - Photo ${currentImageIndex + 1}`}
               fill
               className="object-cover"
               priority
@@ -100,7 +165,7 @@ export default function VirtualTour({ location }: Props) {
           className="flex items-center space-x-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
         >
           <ArrowsPointingOutIcon className="h-5 w-5" />
-          <span>{showPanorama ? 'Galeriyi Göster' : '360° Görünüm'}</span>
+          <span>{showPanorama ? 'Show Gallery' : 'View 360°'}</span>
         </button>
       </div>
 
@@ -118,7 +183,7 @@ export default function VirtualTour({ location }: Props) {
           >
             <Image
               src={image}
-              alt={`${location.name} - Küçük Resim ${index + 1}`}
+              alt={`${location.name} - Thumbnail ${index + 1}`}
               fill
               className="object-cover"
             />
@@ -146,13 +211,28 @@ export default function VirtualTour({ location }: Props) {
           <p className="text-gray-300">{location.historicalInfo}</p>
         </div>
 
+        {/* Cultural Significance */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-2">Cultural Significance</h3>
+          <p className="text-gray-300">{location.culturalSignificance}</p>
+        </div>
+
         {/* Visiting Hours */}
-        {location.visitingHours && (
-          <div>
-            <h3 className="text-xl font-semibold text-white mb-2">Visiting Hours</h3>
-            <p className="text-gray-300">{location.visitingHours}</p>
-          </div>
-        )}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-2">Visiting Hours</h3>
+          <p className="text-gray-300">{location.visitingHours}</p>
+          <p className="text-gray-300 mt-2">{location.admissionFee}</p>
+        </div>
+
+        {/* Tips */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-2">Visitor Tips</h3>
+          <ul className="list-disc list-inside text-gray-300 space-y-1">
+            {location.tips.map((tip, index) => (
+              <li key={index}>{tip}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

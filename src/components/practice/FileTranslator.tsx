@@ -8,7 +8,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
 import { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -43,6 +42,7 @@ export default function FileTranslator({ onProgressAction }: Props) {
   const [targetLanguage, setTargetLanguage] = useState('bs');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pdfjs, setPdfjs] = useState<any>(null);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
 
   // Load PDF.js only on client side
   useEffect(() => {
@@ -50,13 +50,23 @@ export default function FileTranslator({ onProgressAction }: Props) {
 
     const loadPdfjs = async () => {
       try {
-        if (typeof window !== 'undefined') {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-        }
-        setPdfjs(pdfjsLib);
+        setIsPdfLoading(true);
+        // Import the main library
+        const pdfjs = await import('pdfjs-dist/legacy/build/pdf');
+        
+        // Set worker source before doing anything else
+        pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+        // Wait a bit to ensure worker is loaded
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setPdfjs(pdfjs);
+        setError(null);
       } catch (error) {
         console.error('Error loading PDF.js:', error);
         setError('Failed to load PDF processing library');
+      } finally {
+        setIsPdfLoading(false);
       }
     };
 
@@ -71,14 +81,18 @@ export default function FileTranslator({ onProgressAction }: Props) {
            SUPPORTED_EXTENSIONS.includes(fileExtension);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (isFileSupported(selectedFile)) {
         setFile(selectedFile);
         setError(null);
         setTranslatedText('');
-        extractTextFromFile(selectedFile);
+        try {
+          await extractTextFromFile(selectedFile);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : 'Error processing file');
+        }
       } else {
         setError(`Unsupported file type. Please select one of: ${SUPPORTED_EXTENSIONS.join(', ')}`);
         setFile(null);
@@ -86,7 +100,7 @@ export default function FileTranslator({ onProgressAction }: Props) {
     }
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
     if (droppedFile) {
@@ -94,7 +108,11 @@ export default function FileTranslator({ onProgressAction }: Props) {
         setFile(droppedFile);
         setError(null);
         setTranslatedText('');
-        extractTextFromFile(droppedFile);
+        try {
+          await extractTextFromFile(droppedFile);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : 'Error processing file');
+        }
       } else {
         setError(`Unsupported file type. Please drop one of: ${SUPPORTED_EXTENSIONS.join(', ')}`);
       }
@@ -106,30 +124,58 @@ export default function FileTranslator({ onProgressAction }: Props) {
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
+    if (isPdfLoading) {
+      throw new Error('PDF.js is still loading. Please wait a moment and try again.');
+    }
+    
     if (!pdfjs) {
-      throw new Error('PDF.js is not loaded yet');
+      throw new Error('PDF.js failed to load. Please refresh the page and try again.');
     }
 
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument(new Uint8Array(arrayBuffer)).promise;
+      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+      
+      // Add loading task event handlers
+      loadingTask.onProgress = ({ loaded, total }: { loaded: number; total: number }) => {
+        const progressValue = (loaded / total) * 20; // 20% of total progress
+        setProgress(progressValue);
+      };
+
+      const pdf = await loadingTask.promise;
       let text = '';
       
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items
-          .map((item: { str: string }) => item.str)
-          .join(' ');
-        text += pageText + '\n';
+      const totalPages = pdf.numPages;
+      for (let i = 1; i <= totalPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: { str: string }) => item.str)
+            .join(' ');
+          text += pageText + '\n';
 
-        setProgress(20 + (i / pdf.numPages) * 20);
+          // Update progress (20-40% range for text extraction)
+          setProgress(20 + (i / totalPages) * 20);
+        } catch (pageError) {
+          console.error(`Error extracting text from page ${i}:`, pageError);
+          continue;
+        }
       }
       
-      return text.trim();
+      const finalText = text.trim();
+      if (!finalText) {
+        throw new Error('No text could be extracted from the PDF. The file might be scanned or contain only images.');
+      }
+      
+      return finalText;
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
-      throw new Error('Failed to extract text from PDF file');
+      throw new Error(
+        error instanceof Error 
+          ? `Could not extract text from PDF: ${error.message}` 
+          : 'Could not extract text from PDF. Please make sure the file is not corrupted.'
+      );
     }
   };
 
@@ -175,26 +221,34 @@ export default function FileTranslator({ onProgressAction }: Props) {
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     
     try {
+      setProgress(20);
       let text = '';
       const fileType = file.type;
 
-      if (fileType === 'application/pdf') {
+      if (fileType === 'application/pdf' || fileExtension === '.pdf') {
         text = await extractTextFromPDF(file);
-      } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileExtension === '.docx') {
         text = await extractTextFromWord(file);
-      } else if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      } else if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || fileExtension === '.xlsx') {
         text = await extractTextFromExcel(file);
-      } else if (fileType === 'text/plain') {
+      } else if (fileType === 'text/plain' || fileExtension === '.txt') {
         text = await file.text();
       } else {
-        throw new Error('Unsupported file type');
+        throw new Error(`Unsupported file type: ${fileType || fileExtension}`);
+      }
+
+      if (!text.trim()) {
+        throw new Error('No text could be extracted from the file. Please make sure the file contains text content.');
       }
 
       setExtractedText(text);
       setError(null);
+      setProgress(40);
     } catch (error) {
       console.error('Error extracting text:', error);
-      setError('Error extracting text from file');
+      setError(error instanceof Error ? error.message : 'Error extracting text from file');
+      setProgress(0);
+      setExtractedText('');
     }
   };
 
@@ -220,43 +274,55 @@ export default function FileTranslator({ onProgressAction }: Props) {
   const translateText = async (text: string): Promise<void> => {
     try {
       setIsTranslating(true);
-      setProgress(0);
+      setProgress(40);
 
       // Split text into chunks to handle large texts
-      const chunkSize = 5000;
-      const chunks = [];
-      for (let i = 0; i < text.length; i += chunkSize) {
-        chunks.push(text.slice(i, i + chunkSize));
-      }
-
+      const chunks = splitTextIntoChunks(text);
       let translatedChunks = [];
+
       for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
+        const chunk = chunks[i].trim();
+        if (!chunk) continue;
+
+        // Add delay between requests to avoid rate limiting
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         const response = await fetch('/api/translate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             text: chunk,
-            targetLanguage
+            targetLanguage: targetLanguage,
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Translation failed');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Translation failed');
         }
 
         const data = await response.json();
+        if (!data.translatedText) {
+          throw new Error('No translation received');
+        }
+
         translatedChunks.push(data.translatedText);
-        setProgress(((i + 1) / chunks.length) * 100);
+        setProgress(40 + ((i + 1) / chunks.length) * 60);
       }
 
-      setTranslatedText(translatedChunks.join(' '));
+      setTranslatedText(translatedChunks.join('\n\n'));
       setError(null);
     } catch (error) {
       console.error('Translation error:', error);
-      setError('Error translating text');
+      setError(error instanceof Error ? error.message : 'Translation failed');
+      setTranslatedText('');
     } finally {
       setIsTranslating(false);
+      setProgress(100);
     }
   };
 
@@ -379,18 +445,6 @@ export default function FileTranslator({ onProgressAction }: Props) {
           )}
         </div>
 
-        {/* Translation Preview */}
-        {translatedText && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Translation Preview:</h3>
-            <div className="bg-black/30 rounded-lg p-4">
-              <pre className="text-gray-300 whitespace-pre-wrap font-mono text-sm">
-                {translatedText}
-              </pre>
-            </div>
-          </div>
-        )}
-
         {/* Language Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -458,4 +512,4 @@ export default function FileTranslator({ onProgressAction }: Props) {
       </div>
     </div>
   );
-} 
+}

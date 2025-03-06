@@ -13,6 +13,9 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
+    // PDF.js worker configuration
+    config.resolve.alias.canvas = false;
+    
     if (!isServer) {
       // Node polyfills için konfigürasyon
       config.resolve.fallback = {
@@ -20,7 +23,7 @@ const nextConfig = {
         canvas: false,
         fs: false,
         path: false,
-        os: false,
+        url: false,
       };
     }
 

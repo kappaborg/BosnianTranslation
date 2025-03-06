@@ -11,25 +11,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if API key is available
-    const apiKey = process.env.AZURE_TRANSLATOR_KEY;
+    const key = process.env.AZURE_TRANSLATOR_KEY;
     const region = process.env.AZURE_TRANSLATOR_REGION;
-
-    if (!apiKey || !region) {
-      console.error('Translation API credentials are missing');
+    
+    if (!key || !region) {
+      console.error('Azure Translator configuration missing');
       return NextResponse.json(
-        { error: 'Translation service is not configured' },
+        { error: 'Translation service not configured' },
         { status: 503 }
       );
     }
 
     const endpoint = 'https://api.cognitive.microsofttranslator.com';
+    const sourceLang = 'en'; // Default source language
+
     const response = await fetch(
-      `${endpoint}/translate?api-version=3.0&to=${targetLanguage}`,
+      `${endpoint}/translate?api-version=3.0&from=${sourceLang}&to=${targetLanguage}`,
       {
         method: 'POST',
         headers: {
-          'Ocp-Apim-Subscription-Key': apiKey,
+          'Ocp-Apim-Subscription-Key': key,
           'Ocp-Apim-Subscription-Region': region,
           'Content-Type': 'application/json',
         },
@@ -38,11 +39,9 @@ export async function POST(request: Request) {
     );
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
       console.error('Translation API error:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
       });
       return NextResponse.json(
         { error: `Translation API error: ${response.status} - ${response.statusText}` },

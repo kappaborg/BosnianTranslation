@@ -183,6 +183,7 @@ body {
   height: 40px;
   right: 8px;
   top: 8px;
+  background-size: contain;
 }
 
 .pnlm-orientation-button {
@@ -190,4 +191,76 @@ body {
   height: 40px;
   right: 8px;
   top: 56px;
+  background-size: contain;
+}
+
+.pnlm-controls {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.pnlm-zoom-controls {
+  order: 1;
+}
+
+.pnlm-zoom-in,
+.pnlm-zoom-out {
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pnlm-zoom-in:hover,
+.pnlm-zoom-out:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.pnlm-fullscreen-toggle-button {
+  order: 2;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pnlm-fullscreen-toggle-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.pnlm-panorama-info {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.pnlm-about-msg {
+  display: none;
+}
+
+.pnlm-load-box {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  border: none;
+}
+
+.pnlm-load-box p {
+  color: #fff;
 } 
