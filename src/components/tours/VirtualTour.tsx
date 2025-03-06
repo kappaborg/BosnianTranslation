@@ -17,8 +17,8 @@ export default function VirtualTour({ location }: Props) {
 
   useEffect(() => {
     if (showPanorama && viewerRef.current && !viewerInstance) {
-      import('pannellum').then((pannellum) => {
-        const viewer = pannellum.viewer(viewerRef.current!, {
+      import('pannellum').then((mod) => {
+        const viewer = mod.default.viewer(viewerRef.current!, {
           type: 'equirectangular',
           panorama: location.images.panorama,
           autoLoad: true,

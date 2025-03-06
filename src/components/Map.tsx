@@ -1,6 +1,6 @@
 'use client';
 
-import { Location } from '@/types';
+import { TourLocation } from '@/data/tourLocations';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 
@@ -26,8 +26,8 @@ const Popup = dynamic(
 );
 
 interface MapProps {
-  locations: Location[];
-  onLocationSelect?: (location: Location) => void;
+  locations: TourLocation[];
+  onLocationSelect?: (location: TourLocation) => void;
 }
 
 const Map = ({ locations, onLocationSelect }: MapProps) => {
@@ -94,14 +94,6 @@ const Map = ({ locations, onLocationSelect }: MapProps) => {
               <div className="p-2">
                 <h3 className="font-semibold text-lg">{location.name}</h3>
                 <p className="text-sm text-gray-600 mt-1">{location.description}</p>
-                {location.audioGuide && (
-                  <div className="mt-2">
-                    <audio controls className="w-full">
-                      <source src={location.audioGuide.url} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  </div>
-                )}
               </div>
             </Popup>
           </Marker>

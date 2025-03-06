@@ -8,18 +8,6 @@ import { useState } from 'react';
 export default function ToursPage() {
   const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
 
-  const handleNext = () => {
-    if (currentLocationIndex < tourLocations.length - 1) {
-      setCurrentLocationIndex(currentLocationIndex + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentLocationIndex > 0) {
-      setCurrentLocationIndex(currentLocationIndex - 1);
-    }
-  };
-
   const handleLocationSelect = (location: typeof tourLocations[0]) => {
     const index = tourLocations.findIndex((loc) => loc.id === location.id);
     if (index !== -1) {
@@ -59,20 +47,14 @@ export default function ToursPage() {
                   }`}
                 >
                   <h3 className="font-semibold">{location.name}</h3>
-                  <p className="text-sm text-gray-400">{location.location}</p>
+                  <p className="text-sm text-gray-400">{location.description}</p>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        <VirtualTour
-          location={tourLocations[currentLocationIndex]}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          totalLocations={tourLocations.length}
-          currentIndex={currentLocationIndex}
-        />
+        <VirtualTour location={tourLocations[currentLocationIndex]} />
       </div>
     </main>
   );

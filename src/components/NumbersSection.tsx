@@ -1,6 +1,5 @@
 'use client';
 
-import { setupSpeechSynthesis } from '@/utils/pronunciation';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -21,69 +20,79 @@ const numbers = [
   { number: 13, bosnian: 'trinaest' },
   { number: 14, bosnian: 'četrnaest' },
   { number: 15, bosnian: 'petnaest' },
+  { number: 16, bosnian: 'šesnaest' },
+  { number: 17, bosnian: 'sedamnaest' },
+  { number: 18, bosnian: 'osamnaest' },
+  { number: 19, bosnian: 'devetnaest' },
   { number: 20, bosnian: 'dvadeset' },
   { number: 30, bosnian: 'trideset' },
   { number: 40, bosnian: 'četrdeset' },
   { number: 50, bosnian: 'pedeset' },
+  { number: 60, bosnian: 'šezdeset' },
+  { number: 70, bosnian: 'sedamdeset' },
+  { number: 80, bosnian: 'osamdeset' },
+  { number: 90, bosnian: 'devedeset' },
   { number: 100, bosnian: 'sto' },
-  { number: 1000, bosnian: 'hiljada' },
+  { number: 1000, bosnian: 'hiljada' }
 ];
 
 export default function NumbersSection() {
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
 
-  const playPronunciation = (text: string) => {
-    if (isPlaying) return;
-
-    setIsPlaying(true);
-    const utterance = setupSpeechSynthesis(text, 'bs');
-    
-    utterance.onend = () => {
-      setIsPlaying(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
+  const handleNumberClick = (number: number) => {
+    setSelectedNumber(number);
+    setShowTranslation(true);
   };
 
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
         <h2 className="text-2xl font-bold text-white">Numbers in Bosnian</h2>
-        <p className="text-gray-400">Learn how to count in Bosnian</p>
+        <p className="text-gray-300">Click on a number to see its Bosnian translation</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {numbers.map((item) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {numbers.map(({ number, bosnian }) => (
           <motion.button
-            key={item.number}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              setSelectedNumber(item.number);
-              playPronunciation(item.bosnian);
-            }}
-            className={`p-4 rounded-xl transition-all ${
-              selectedNumber === item.number
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+            key={number}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleNumberClick(number)}
+            className={`p-4 rounded-lg transition-all ${
+              selectedNumber === number
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
-            <div className="text-2xl font-bold mb-2">{item.number}</div>
-            <div className="text-lg">{item.bosnian}</div>
+            <div className="text-xl font-bold">{number}</div>
+            {selectedNumber === number && showTranslation && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm mt-2"
+              >
+                {bosnian}
+              </motion.div>
+            )}
           </motion.button>
         ))}
       </div>
 
-      <div className="bg-white/5 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Tips:</h3>
-        <ul className="list-disc list-inside space-y-2 text-gray-400">
-          <li>Click on any number to hear its pronunciation</li>
-          <li>Numbers 11-19 follow the pattern: base number + "naest"</li>
-          <li>Tens (20, 30, etc.) usually end with "deset"</li>
-          <li>Practice saying each number out loud</li>
-        </ul>
-      </div>
+      {selectedNumber !== null && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mt-8"
+        >
+          <p className="text-2xl text-white">
+            <span className="font-bold">{selectedNumber}</span> in Bosnian is{' '}
+            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+              {numbers.find(n => n.number === selectedNumber)?.bosnian}
+            </span>
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 } 

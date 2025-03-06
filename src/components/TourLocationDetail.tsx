@@ -1,13 +1,13 @@
 'use client';
 
-import { Location } from '@/types';
+import { TourLocation } from '@/data/tourLocations';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
-import PanoramaViewer from './PanoramaViewer';
+import VirtualTour from './tours/VirtualTour';
 
 interface TourLocationDetailProps {
-  location: Location;
+  location: TourLocation;
 }
 
 export default function TourLocationDetail({ location }: TourLocationDetailProps) {
@@ -27,7 +27,7 @@ export default function TourLocationDetail({ location }: TourLocationDetailProps
         <div className="mb-8">
           <div className="relative h-[500px] rounded-lg overflow-hidden mb-4">
             <Image
-              src={location.images[selectedImage]}
+              src={location.images.gallery[selectedImage]}
               alt={location.name}
               fill
               className="object-cover"
@@ -35,7 +35,7 @@ export default function TourLocationDetail({ location }: TourLocationDetailProps
             />
           </div>
           <div className="grid grid-cols-4 gap-4">
-            {location.images.map((image, index) => (
+            {location.images.gallery.map((image, index) => (
               <button
                 key={image}
                 onClick={() => setSelectedImage(index)}
@@ -56,81 +56,68 @@ export default function TourLocationDetail({ location }: TourLocationDetailProps
           </div>
         </div>
 
-        {/* Description and Historical Facts */}
+        {/* Description and Historical Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className="prose max-w-none">
             <h2 className="text-2xl font-semibold mb-4">About</h2>
-            <p className="text-gray-600">{location.description}</p>
+            <p className="text-gray-300">{location.description}</p>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4">Historical Facts</h2>
-            <ul className="space-y-4">
-              {location.historicalFacts.map((fact, index) => (
-                <motion.li
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start"
-                >
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full mr-3 flex-shrink-0 mt-1">
-                    {index + 1}
-                  </span>
-                  <span className="text-gray-700">{fact}</span>
-                </motion.li>
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-white">Historical Information</h2>
+            <p className="text-gray-300">{location.historicalInfo}</p>
+          </div>
+        </div>
+
+        {/* Cultural Significance */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-white">Cultural Significance</h2>
+          <p className="text-gray-300">{location.culturalSignificance}</p>
+        </div>
+
+        {/* Visiting Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-white">Visiting Hours</h2>
+            <p className="text-gray-300">{location.visitingHours}</p>
+            <h3 className="text-xl font-semibold mt-4 mb-2 text-white">Admission</h3>
+            <p className="text-gray-300">{location.admissionFee}</p>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-white">Visitor Tips</h2>
+            <ul className="space-y-2">
+              {location.tips.map((tip, index) => (
+                <li key={index} className="text-gray-300">• {tip}</li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* Audio Guide */}
-        {location.audioGuide && (
-          <div className="bg-white rounded-lg p-6 shadow-lg mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Audio Guide</h2>
-            <audio controls className="w-full">
-              <source src={location.audioGuide.url} type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-            {location.audioGuide.transcript && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2">Transcript</h3>
-                <p className="text-gray-600">{location.audioGuide.transcript}</p>
-              </div>
-            )}
-            {location.audioGuide.duration && (
-              <div className="mt-2 text-sm text-gray-500">
-                Duration: {location.audioGuide.duration}
-              </div>
-            )}
+        {/* Virtual Tour */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-white">Virtual Tour</h2>
+            <button
+              onClick={() => setShowPanorama(!showPanorama)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              {showPanorama ? 'Hide Virtual Tour' : 'Show Virtual Tour'}
+            </button>
           </div>
-        )}
 
-        {/* Panorama Section */}
-        {location.panorama && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">360° Panorama View</h2>
-              <button
-                onClick={() => setShowPanorama(!showPanorama)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                {showPanorama ? 'Hide Panorama' : 'Show Panorama'}
-              </button>
-            </div>
-
-            {showPanorama && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <PanoramaViewer location={location} />
-              </motion.div>
-            )}
-          </div>
-        )}
+          {showPanorama && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="aspect-video w-full"
+            >
+              <VirtualTour location={location} />
+            </motion.div>
+          )}
+        </div>
       </motion.div>
     </div>
   );

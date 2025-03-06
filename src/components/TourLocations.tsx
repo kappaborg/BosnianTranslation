@@ -1,4 +1,4 @@
-import { locations } from '@/data/tourLocations';
+import { tourLocations } from '@/data/tourLocations';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -8,7 +8,7 @@ const TourLocations: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-3xl font-bold text-center mb-8">Explore Bosnia & Herzegovina</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {locations.map((location) => (
+        {tourLocations.map((location) => (
           <Link 
             href={`/tours/${location.id}`} 
             key={location.id}
@@ -16,7 +16,7 @@ const TourLocations: React.FC = () => {
           >
             <div className="relative h-64">
               <Image
-                src={location.images[0]}
+                src={location.images.gallery[0]}
                 alt={location.name}
                 fill
                 className="object-cover"

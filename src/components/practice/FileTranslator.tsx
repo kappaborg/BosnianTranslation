@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 import { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -49,9 +50,10 @@ export default function FileTranslator({ onProgressAction }: Props) {
 
     const loadPdfjs = async () => {
       try {
-        const PDFJS = await import('pdfjs-dist');
-        PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.min.js`;
-        setPdfjs(PDFJS);
+        if (typeof window !== 'undefined') {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        }
+        setPdfjs(pdfjsLib);
       } catch (error) {
         console.error('Error loading PDF.js:', error);
         setError('Failed to load PDF processing library');
@@ -63,7 +65,8 @@ export default function FileTranslator({ onProgressAction }: Props) {
 
   const isFileSupported = (file: File) => {
     const fileType = file.type;
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const fileExtension = extension as typeof SUPPORTED_EXTENSIONS[number];
     return Object.keys(SUPPORTED_FILE_TYPES).includes(fileType) || 
            SUPPORTED_EXTENSIONS.includes(fileExtension);
   };

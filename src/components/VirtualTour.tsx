@@ -1,35 +1,24 @@
 'use client';
 
-import { locations } from '@/data/tourLocations';
-import { Location } from '@/types';
+import { TourLocation, tourLocations } from '@/data/tourLocations';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, ChevronLeft, ChevronRight, Volume2, VolumeX, X } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import LoadingSpinner from './ui/LoadingSpinner';
 import { Button } from './ui/button';
 
-const ReactPannellum = dynamic(() => import('react-pannellum'), {
-  ssr: false,
-  loading: () => <LoadingSpinner />
-});
-
-interface Hotspot {
-  pitch: number;
-  yaw: number;
-  text: string;
-}
-
 const VirtualTour = () => {
-  const [selectedLocation, setSelectedLocation] = useState<Location>(locations[0]);
+  const [selectedLocation, setSelectedLocation] = useState<TourLocation>(tourLocations[0]);
   const [showGallery, setShowGallery] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [showPanorama, setShowPanorama] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [weatherData, setWeatherData] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [viewer, setViewer] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -47,6 +36,26 @@ const VirtualTour = () => {
     }
   }, [selectedLocation, mounted]);
 
+  useEffect(() => {
+    if (showPanorama && viewerRef.current) {
+      import('pannellum').then((mod) => {
+        const viewer = mod.default.viewer(viewerRef.current!, {
+          type: 'equirectangular',
+          panorama: selectedLocation.images.panorama,
+          autoLoad: true,
+          compass: true,
+          orientationOnByDefault: true,
+        });
+        setViewer(viewer);
+      });
+    }
+    return () => {
+      if (viewer) {
+        viewer.destroy();
+      }
+    };
+  }, [showPanorama, selectedLocation.images.panorama]);
+
   const fetchWeatherData = async () => {
     try {
       const response = await fetch(
@@ -59,23 +68,11 @@ const VirtualTour = () => {
     }
   };
 
-  const handleAudioToggle = () => {
-    const audio = document.getElementById('audioGuide') as HTMLAudioElement;
-    if (audio) {
-      if (isAudioPlaying) {
-        audio.pause();
-      } else {
-        audio.play();
-      }
-      setIsAudioPlaying(!isAudioPlaying);
-    }
-  };
-
   const handleImageNavigation = (direction: 'prev' | 'next') => {
     if (direction === 'prev') {
-      setCurrentImageIndex((prev) => (prev === 0 ? selectedLocation.images.length - 1 : prev - 1));
+      setCurrentImageIndex((prev) => (prev === 0 ? selectedLocation.images.gallery.length - 1 : prev - 1));
     } else {
-      setCurrentImageIndex((prev) => (prev === selectedLocation.images.length - 1 ? 0 : prev + 1));
+      setCurrentImageIndex((prev) => (prev === selectedLocation.images.gallery.length - 1 ? 0 : prev + 1));
     }
   };
 
@@ -95,7 +92,7 @@ const VirtualTour = () => {
           <div className="md:col-span-1 space-y-4">
             <h2 className="text-2xl font-bold mb-4">Virtual Tour Locations</h2>
             <div className="space-y-2">
-              {locations.map((location: Location) => (
+              {tourLocations.map((location: TourLocation) => (
                 <motion.button
                   key={location.id}
                   whileHover={{ scale: 1.02 }}
@@ -129,27 +126,13 @@ const VirtualTour = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mb-6">
-              {selectedLocation.panorama && (
+              {selectedLocation.images.panorama && (
                 <Button
                   onClick={() => setShowPanorama(true)}
                   className="flex items-center gap-2"
                 >
                   <Camera className="w-4 h-4" />
                   View 360° Panorama
-                </Button>
-              )}
-              
-              {selectedLocation.audioGuide && (
-                <Button
-                  onClick={handleAudioToggle}
-                  className="flex items-center gap-2"
-                >
-                  {isAudioPlaying ? (
-                    <VolumeX className="w-4 h-4" />
-                  ) : (
-                    <Volume2 className="w-4 h-4" />
-                  )}
-                  {isAudioPlaying ? 'Pause Audio Guide' : 'Play Audio Guide'}
                 </Button>
               )}
               
@@ -165,22 +148,8 @@ const VirtualTour = () => {
             {/* Historical Facts */}
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-3">Historical Facts</h3>
-              <ul className="list-disc list-inside space-y-2">
-                {selectedLocation.historicalFacts.map((fact: string, index: number) => (
-                  <li key={index} className="text-gray-600">{fact}</li>
-                ))}
-              </ul>
+              <p className="text-gray-600">{selectedLocation.historicalInfo}</p>
             </div>
-
-            {/* Audio Guide */}
-            {selectedLocation.audioGuide && (
-              <audio
-                id="audioGuide"
-                src={selectedLocation.audioGuide.url}
-                onEnded={() => setIsAudioPlaying(false)}
-                className="hidden"
-              />
-            )}
           </div>
         </div>
       </div>
@@ -210,7 +179,7 @@ const VirtualTour = () => {
               </button>
               
               <img
-                src={selectedLocation.images[currentImageIndex]}
+                src={selectedLocation.images.gallery[currentImageIndex]}
                 alt={`${selectedLocation.name} - Image ${currentImageIndex + 1}`}
                 className="max-h-[80vh] max-w-[90vw] object-contain"
               />
@@ -223,7 +192,7 @@ const VirtualTour = () => {
               </button>
               
               <div className="absolute bottom-4 text-white text-sm">
-                {currentImageIndex + 1} / {selectedLocation.images.length}
+                {currentImageIndex + 1} / {selectedLocation.images.gallery.length}
               </div>
             </div>
           </motion.div>
@@ -232,7 +201,7 @@ const VirtualTour = () => {
 
       {/* Panorama Modal */}
       <AnimatePresence>
-        {showPanorama && selectedLocation.panorama && (
+        {showPanorama && selectedLocation.images.panorama && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -247,29 +216,11 @@ const VirtualTour = () => {
             </button>
             
             <div className="w-full h-full max-w-7xl mx-auto p-4">
-              <ReactPannellum
-                width="100%"
-                height="100%"
-                image={selectedLocation.panorama.url}
-                pitch={10}
-                yaw={180}
-                hfov={110}
-                autoLoad
-                onLoad={() => setIsLoading(false)}
-                hotspots={selectedLocation.panorama.hotspots?.map((hotspot: Hotspot) => ({
-                  pitch: hotspot.pitch,
-                  yaw: hotspot.yaw,
-                  text: hotspot.text,
-                  type: 'info'
-                }))}
-              />
+              <div ref={viewerRef} className="w-full h-full" />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Loading Spinner */}
-      {isLoading && <LoadingSpinner />}
     </div>
   );
 };

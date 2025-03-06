@@ -206,5 +206,3 @@ export const tourLocations: TourLocation[] = [
     ]
   }
 ];
-
-export type { TourLocation };

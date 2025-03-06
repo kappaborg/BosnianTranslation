@@ -1,8 +1,7 @@
 'use client';
 
 import Map from '@/components/Map';
-import { locations } from '@/data/tourLocations';
-import { Location } from '@/types';
+import { TourLocation, tourLocations } from '@/data/tourLocations';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
@@ -19,7 +18,7 @@ const TourLocationDetail = dynamic(() => import('@/components/TourLocationDetail
 });
 
 export default function ClientToursPage() {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<TourLocation | null>(null);
 
   return (
     <div className="min-h-screen pt-20 px-4 md:px-8">
@@ -32,7 +31,7 @@ export default function ClientToursPage() {
         
         <div className="grid grid-cols-1 gap-8">
           <Map
-            locations={locations}
+            locations={tourLocations}
             onLocationSelect={(location) => setSelectedLocation(location)}
           />
           

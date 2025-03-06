@@ -1,33 +1,18 @@
 'use client';
 
-import 'pannellum/build/pannellum.css';
+import { TourLocation } from '@/data/tourLocations';
 import { useEffect, useRef } from 'react';
 
-interface PannellumConfig {
-  autoLoad?: boolean;
-  compass?: boolean;
-  hotSpots?: Array<{
-    pitch: number;
-    yaw: number;
-    text: string;
-  }>;
-  sceneFadeDuration?: number;
-  hfov?: number;
-  pitch?: number;
-  yaw?: number;
-}
-
 interface Props {
-  imageUrl: string;
-  config?: PannellumConfig;
+  location: TourLocation;
 }
 
-export default function PannellumWrapper({ imageUrl, config = {} }: Props) {
+export default function PannellumWrapper({ location }: Props) {
   const viewerRef = useRef<HTMLDivElement>(null);
   const pannellumRef = useRef<any>(null);
 
   useEffect(() => {
-    const loadPannellum = async () => {
+    const initPannellum = async () => {
       try {
         // Dynamically import pannellum
         const pannellum = (await import('pannellum')).default;
@@ -35,41 +20,35 @@ export default function PannellumWrapper({ imageUrl, config = {} }: Props) {
         if (viewerRef.current && !pannellumRef.current) {
           pannellumRef.current = pannellum.viewer(viewerRef.current, {
             type: 'equirectangular',
-            panorama: imageUrl,
-            autoLoad: config.autoLoad ?? true,
-            compass: config.compass ?? true,
-            hotSpots: config.hotSpots ?? [],
-            sceneFadeDuration: config.sceneFadeDuration ?? 1000,
-            hfov: config.hfov ?? 110,
-            pitch: config.pitch ?? 10,
-            yaw: config.yaw ?? 180,
-            autoRotate: -2,
-            showControls: true,
-            showFullscreenCtrl: true,
-            showZoomCtrl: true,
-            mouseZoom: true,
-            draggable: true,
+            panorama: location.images.panorama,
+            autoLoad: true,
+            compass: true,
+            hotSpots: [],
+            sceneFadeDuration: 1000,
+            hfov: 110,
+            pitch: 10,
+            yaw: 180
           });
         }
       } catch (error) {
-        console.error('Error loading Pannellum:', error);
+        console.error('Error initializing Pannellum:', error);
       }
     };
 
-    loadPannellum();
+    initPannellum();
 
     return () => {
       if (pannellumRef.current) {
         pannellumRef.current.destroy();
+        pannellumRef.current = null;
       }
     };
-  }, [imageUrl, config]);
+  }, [location.images.panorama]);
 
   return (
-    <div
-      ref={viewerRef}
-      className="w-full h-full rounded-lg overflow-hidden"
-      style={{ backgroundColor: '#000000' }}
+    <div 
+      ref={viewerRef} 
+      className="w-full aspect-video rounded-lg overflow-hidden"
     />
   );
 } 

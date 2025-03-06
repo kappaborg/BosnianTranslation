@@ -1,7 +1,7 @@
 'use client';
 
 import Navigation from "@/components/Navigation";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export default function ClientThemeProvider({ children }: { children: React.ReactNode }) {
   return (

@@ -2,6 +2,7 @@
 
 import DailyPhrases from '@/components/DailyPhrases';
 import DragDropQuiz from '@/components/DragDropQuiz';
+import NumbersSection from '@/components/NumbersSection';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -20,9 +21,9 @@ const sections = [
     id: 'learning',
     title: 'Learning',
     items: [
-      { id: 'daily-phrases', title: 'Daily Phrases', component: DailyPhrases, icon: '📖' },
-      { id: 'numbers', title: 'Numbers', component: NumbersSection, icon: '🔢' },
-      { id: 'drag-drop', title: 'Drag & Drop Quiz', component: DragDropQuiz, icon: '🎯' },
+      { id: 'daily-phrases', title: 'Daily Phrases', component: DailyPhrases, icon: '📖', color: 'from-blue-500 to-indigo-500' },
+      { id: 'numbers', title: 'Numbers', component: NumbersSection, icon: '🔢', color: 'from-green-500 to-emerald-500' },
+      { id: 'drag-drop', title: 'Drag & Drop Quiz', component: DragDropQuiz, icon: '🎯', color: 'from-purple-500 to-pink-500' },
     ]
   },
   {
@@ -195,8 +196,12 @@ export default function LearnPage() {
                     />
                   ) : activeSection === 'matching' ? (
                     <WordMatching />
+                  ) : activeSection === 'numbers' ? (
+                    <NumbersSection />
+                  ) : activeSection === 'drag-drop' ? (
+                    <DragDropQuiz />
                   ) : (
-                    <ActiveComponent />
+                    <DailyPhrases />
                   )
                 )}
               </Suspense>
