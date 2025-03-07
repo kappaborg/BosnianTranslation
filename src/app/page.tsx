@@ -137,23 +137,6 @@ export default function HomePage() {
           transition={{ delay: 0.6 }}
           className="mb-16"
         >
-          <h2 className="text-3xl font-semibold text-center mb-8">
-            Quick Start with Common Phrases
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {sampleFlashCards.map((card, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Suspense fallback={<LoadingSpinner />}>
-                  <FlashCard {...card} />
-                </Suspense>
-              </motion.div>
-            ))}
-          </div>
         </motion.section>
       </div>
     </div>
