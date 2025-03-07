@@ -1,6 +1,6 @@
 'use client';
 
-import { BugAntIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Analytics } from "@vercel/analytics/react";
 import { motion } from 'framer-motion';
 import 'leaflet/dist/leaflet.css';
@@ -78,15 +78,7 @@ export default function RootLayout({
               </Suspense>
 
               {/* Bug Report Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsBugReportOpen(true)}
-                className="fixed bottom-4 right-24 p-4 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition-colors z-50"
-              >
-                <BugAntIcon className="w-6 h-6" />
-                <span className="sr-only">Report Bug</span>
-              </motion.button>
+              {/* We are not adding this button for now  */}
 
               {/* Chat Bot Button */}
               <motion.button
