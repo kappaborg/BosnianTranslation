@@ -34,10 +34,11 @@ const sampleFlashCards = [
 
 const features = [
   {
-    title: 'Virtual Tour',
-    description: 'Explore Bosnia through an interactive virtual tour',
-    link: '/tours',
-    icon: '🗺️'
+    
+    title: 'Bosnian Culture',
+    description: 'Learn Bosnian culture and traditions',
+    link: '/culture',
+    icon: '🏰'
   },
   {
     title: 'Practice',
@@ -46,10 +47,10 @@ const features = [
     icon: '📝'
   },
   {
-    title: 'Flashcards',
-    description: 'Learn new words with our flashcard system',
-    link: '/learning',
-    icon: '🎴'
+    title: 'Virtual Tour',
+    description: 'Explore Bosnia through an interactive virtual tour',
+    link: '/tours',
+    icon: '🗺️'
   }
 ];
 
