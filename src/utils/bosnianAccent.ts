@@ -6,7 +6,7 @@
 /**
  * Boşnak alfabesindeki özel karakterler
  */
-export const bosnianSpecialChars = {
+export const bosnianSpecialChars: { [key: string]: string } = {
   c: 'ts',  // c = ts sound
   č: 'ch',  // č = ch as in "church"
   ć: 'ch',  // ć = softer ch sound
@@ -22,7 +22,7 @@ export const bosnianSpecialChars = {
 /**
  * Boşnak diline özgü yaygın kelimeler ve telaffuzları
  */
-export const commonBosnianWords = {
+export const commonBosnianWords: { [key: string]: { translation: string; pronunciation: string } } = {
   'zdravo': { translation: 'hello', pronunciation: 'zdrah-voh' },
   'dobar dan': { translation: 'good day', pronunciation: 'doh-bar dan' },
   'hvala': { translation: 'thank you', pronunciation: 'hva-la' },
@@ -42,7 +42,7 @@ export const commonBosnianWords = {
  * Boşnak dilindeki özel bazı karakteristik kelimeler
  * Boşnakça'ya özgü, Sırpça ve Hırvatça'dan farklı kelimeler
  */
-export const uniqueBosnianWords = {
+export const uniqueBosnianWords: { [key: string]: { translation: string; usage: string } } = {
   // Arapça'dan gelen kelimeler
   'Allah': { translation: 'God', usage: 'Religious term' },
   'mahala': { translation: 'neighborhood, quarter', usage: 'Urban areas' },
