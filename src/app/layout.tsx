@@ -1,8 +1,6 @@
 'use client';
 
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Analytics } from "@vercel/analytics/react";
-import { motion } from 'framer-motion';
 import 'leaflet/dist/leaflet.css';
 import dynamic from 'next/dynamic';
 import { Inter } from "next/font/google";
@@ -23,11 +21,6 @@ const ThemeProvider = dynamic(() => import('@/components/ThemeProvider'), {
 });
 
 const BugReport = dynamic(() => import('@/components/BugReport'), {
-  loading: () => <LoadingSpinner />,
-  ssr: false,
-});
-
-const ChatBot = dynamic(() => import('@/components/ChatBot'), {
   loading: () => <LoadingSpinner />,
   ssr: false,
 });
@@ -54,7 +47,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
 
   return (
@@ -80,34 +72,11 @@ export default function RootLayout({
               {/* Bug Report Button */}
               {/* We are not adding this button for now  */}
 
-              {/* Chat Bot Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsChatOpen(true)}
-                className="fixed bottom-4 right-4 p-4 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-50"
-              >
-                <ChatBubbleLeftRightIcon className="w-6 h-6" />
-                <span className="sr-only">Open Chat Assistant</span>
-              </motion.button>
-
               {/* Bug Report Modal */}
               <Suspense fallback={<LoadingSpinner />}>
                 <BugReport
                   isOpen={isBugReportOpen}
                   onClose={() => setIsBugReportOpen(false)}
-                />
-              </Suspense>
-
-              {/* Chat Bot */}
-              <Suspense fallback={<LoadingSpinner />}>
-                <ChatBot
-                  isOpen={isChatOpen}
-                  onClose={() => setIsChatOpen(false)}
-                  initialContext={{
-                    difficulty: "beginner",
-                    focusArea: "conversation",
-                  }}
                 />
               </Suspense>
             </div>

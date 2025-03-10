@@ -1,6 +1,6 @@
 'use client';
 
-import { GlobeAltIcon, HomeIcon, MapIcon } from '@heroicons/react/24/outline';
+import { BookOpenIcon, GlobeAltIcon, HomeIcon, MapIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -33,6 +33,17 @@ export default function PlanetaryNavigation() {
             </div>
             <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               Learning
+            </span>
+          </Link>
+
+          <Link href="/culture" className="relative group">
+            <div className="absolute -inset-2 bg-gradient-to-r from-pink-600 to-red-600 rounded-full blur opacity-0 group-hover:opacity-100 transition duration-200" />
+            <div className="relative w-12 h-12 bg-gray-900 rounded-full border-2 border-pink-500 flex items-center justify-center text-pink-500 hover:text-pink-400 transition-colors">
+              <BookOpenIcon className="w-6 h-6" />
+              <span className="sr-only">Culture</span>
+            </div>
+            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Culture
             </span>
           </Link>
 

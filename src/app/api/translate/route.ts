@@ -1,40 +1,34 @@
+import { enhanceBosnianTranslation } from '@/utils/bosnianAccent';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { text, targetLanguage } = await request.json();
+    const { text, from, to } = await request.json();
 
-    if (!text || !targetLanguage) {
+    if (!text) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required text field' },
         { status: 400 }
       );
     }
 
-    const key = process.env.AZURE_TRANSLATOR_KEY;
-    const region = process.env.AZURE_TRANSLATOR_REGION;
-    
-    if (!key || !region) {
-      console.error('Azure Translator configuration missing');
-      return NextResponse.json(
-        { error: 'Translation service not configured' },
-        { status: 503 }
-      );
-    }
+    const sourceLang = from || 'en';
+    const targetLang = to || 'bs';
 
-    const endpoint = 'https://api.cognitive.microsofttranslator.com';
-    const sourceLang = 'en'; // Default source language
+    // MyMemory API kullanarak çeviri yap
+    const params = new URLSearchParams();
+    params.append('q', text);
+    params.append('langpair', `${sourceLang}|${targetLang}`);
+    params.append('de', 'bosniatrans@example.com'); // E-posta (Rate-limit için)
+    params.append('mt', '1'); // Makine çevirisi kullan
 
     const response = await fetch(
-      `${endpoint}/translate?api-version=3.0&from=${sourceLang}&to=${targetLanguage}`,
+      `https://api.mymemory.translated.net/get?${params.toString()}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: {
-          'Ocp-Apim-Subscription-Key': key,
-          'Ocp-Apim-Subscription-Region': region,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify([{ text }]),
       }
     );
 
@@ -50,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    const translatedText = data[0]?.translations[0]?.text;
+    let translatedText = data.responseData?.translatedText;
 
     if (!translatedText) {
       console.error('No translation found in response:', data);
@@ -60,7 +54,17 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ translatedText });
+    // Boşnakça çeviriyse, metni iyileştir
+    if (targetLang === 'bs') {
+      translatedText = enhanceBosnianTranslation(translatedText);
+    }
+
+    return NextResponse.json({ 
+      translatedText,
+      match: data.responseData?.match || 0,
+      responseDetails: data.responseDetails,
+      responseStatus: data.responseStatus
+    });
   } catch (error) {
     console.error('Translation error:', error);
     return NextResponse.json(
