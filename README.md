@@ -17,10 +17,11 @@ A sleek and powerful web app built with **TypeScript** that not only provides in
 ✅ **🌟 Clean UI** – Enjoy an intuitive, user-friendly interface.  
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/0cd771e0-a3f2-44a2-8949-38e7fe72632f" alt="App Screenshot" width="600">
+  <img width="1211" alt="image" src="https://github.com/user-attachments/assets/27d6a041-96ae-4092-9bf6-ce4447dcb058" />
 </p>
 
 ---
+
 
 
 
